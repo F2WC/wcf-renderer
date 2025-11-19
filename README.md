@@ -4,10 +4,7 @@ A TypeScript-based framework for rendering web components with Vite as the build
 
 ## Features
 
-- Modern TypeScript support
-- Fast development with Vite
-- ESLint for code quality
-- Path aliases for clean imports
+- TODO
 
 ## Getting Started
 
@@ -52,30 +49,17 @@ The production build will be available in the `dist` directory.
 npm run preview
 ```
 
-### Linting
+### Linting & Format
 
 ```bash
 # Run ESLint
 npm run lint
 ```
 
-## Project Structure
-
-```
-/
-├── src/                  # Source code
-│   ├── types/            # TypeScript type definitions
-│   └── index.ts          # Main entry point
-├── index.html            # HTML entry point
-├── vite.config.ts        # Vite configuration
-├── tsconfig.json         # TypeScript configuration
-├── .eslintrc.json        # ESLint configuration
-├── package.json          # Project metadata and dependencies
-└── README.md             # Project documentation
+```bash
+npm run format
 ```
 
 ## License
 
 ISC
-
-# mfe-builder
