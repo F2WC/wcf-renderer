@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  app-shell:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -lc "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - '5173:5173'
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - appshell_node_modules:/app/node_modules
+    depends_on:
+      - mfe-vue-one
+      - mfe-react-one
+      - sdk
+
+  mfe-vue-one:
+    image: node:24-alpine
+    working_dir: /app/playground/mfe-vue-one
+    command: sh -lc "npm ci && npx vite build --watch"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - mfe_vue_node_modules:/app/playground/mfe-vue-one/node_modules
+
+  mfe-react-one:
+    image: node:24-alpine
+    working_dir: /app/playground/mfe-react-one
+    command: sh -lc "npm ci && npx vite build --watch"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - mfe_react_node_modules:/app/playground/mfe-react-one/node_modules
+
+  sdk:
+    image: node:24-alpine
+    working_dir: /app/packages/sdk
+    # Run TypeScript in watch mode AND vite build in watch mode in parallel
+    command: sh -lc "npm ci && (npx tsc -w &) && npx vite build --watch"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - sdk_node_modules:/app/packages/sdk/node_modules
+
+volumes:
+  appshell_node_modules:
+  mfe_vue_node_modules:
+  mfe_react_node_modules:
+  sdk_node_modules:
