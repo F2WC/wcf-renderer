@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "scripts": {
+    "setup": "bash ./setup.sh",
     "build": "lerna run build",
     "test": "lerna run test",
     "test:watch": "lerna run test:watch",

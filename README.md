@@ -24,28 +24,57 @@ by a lightweight App Shell. This enables incremental migration, mixed‑stack fe
 
 ### Prerequisites
 
-- TODO
+- Docker Desktop 4.x or newer (includes Docker Compose v2)
+- Bash (for running the setup script)
+- Node.js 20+ and npm 10+ (only needed to run the local setup script; the app itself runs in Docker)
 
-### Clone & install
+### Clone & setup
 
 ```bash
 git clone <repository-url>
 cd web-component-framework-renderer
-npm install
+# Install local dependencies so your editor/TypeScript tooling works
+npm run setup    # or: bash ./setup.sh
 ```
+
+### Run the stack (Docker)
+
+```bash
+docker compose up --build
+```
+
+- App Shell dev server: http://localhost:5173
+- The first startup may take a while. The shell waits until both MFEs have produced their first build before starting Vite.
+- Stop with Ctrl+C. To run in background, add `-d`.
 
 ### Develop
 
-TODO
+The recommended way to develop is via Docker. The repository is mounted into the containers, and each service runs in watch mode:
+
+- `packages/sdk` builds in watch mode
+- `playground/mfe-vue-one` and `playground/mfe-react-one` build in watch mode
+- `playground/shell` (Vite) reloads when MFEs output to `dist/`
+
+Typical flow:
+
+1. Run `npm run setup` once locally so node_modules are available for your editor and local tooling.
+2. Start the dev stack with `docker compose up --build`.
+3. Edit code in your IDE; changes are picked up automatically by the running containers.
+
+Tips:
+
+- View logs for a single service: `docker compose logs -f app-shell` (or any service)
+- Restart one service: `docker compose restart mfe-vue-one`
+- Clean dev volumes (node_modules inside containers): `docker compose down -v`
 
 ### Lint & Format
 
 ```bash
-npm run lint
+npm run lint:script
 ```
 
 ```bash
-npm run format
+npm run lint:script:fix
 ```
 
 ## Roadmap / TODO (consolidated)

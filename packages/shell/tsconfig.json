@@ -9,11 +9,12 @@
     "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
     "strictNullChecks": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "vite.config.ts"],
+  "include": ["src/**/*", "*.ts"],
   "exclude": ["**/*.spec.ts"]
 }
