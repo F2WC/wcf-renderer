@@ -10,11 +10,12 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
+    "strictNullChecks": true,
     "paths": {
       "@/*": ["./src/*"],
       "~/*": ["./mfe/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "vite.config.ts"],
   "exclude": ["**/*.spec.ts"]
 }

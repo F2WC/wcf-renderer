@@ -77,4 +77,5 @@ npm run lint
 ## License
 
 ISC
+
 # mfe-builder

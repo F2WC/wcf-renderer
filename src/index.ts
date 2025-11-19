@@ -1,36 +1,42 @@
-import wcfRenderer from './plugin.ts'
-import {ConsoleWcfLogger} from "@/logger.js";
+import { ConsoleWcfLogger } from '@/logger.js'
 
 /**
  * A generic interface for a micro-frontend application instance from any framework.
  * It must have `mount` and `unmount` methods.
  */
 interface FrameworkApplication {
-  mount(rootContainer: string | Element): any;
-  unmount(): void;
+  bootstrap(): void
+  mount(): void
+  unmount(): void
 }
 
 interface LifecycleFunctions {
-  mount: () => void;
-  unmount: () => void;
+  bootstrap: () => void
+  mount: () => void
+  unmount: () => void
 }
 
 interface Options {
-  name: string;
-  cssURLs?: string[];
+  name: string
+  cssURLs?: string[]
 }
 
 interface ComponentAttributes {
-  props?: string;
+  props?: string
 }
 
-type ComponentProps = Record<string, unknown>;
+type ComponentProps = Record<string, unknown>
+
+interface CreateMfeOptions {
+  rootContainer: string | Element
+  props?: Record<string, unknown>
+}
 
 /**
  * A factory function, provided by the MFE, that creates and returns a fresh
  * instance of its application. It can receive props from the AppShell.
  */
-type AppFactory<T extends FrameworkApplication> = (props?: Record<string, any>) => T;
+type AppFactory<T extends FrameworkApplication> = (options: CreateMfeOptions) => T
 
 /**
  * Creates a class for a self-contained web component for a micro-frontend.
@@ -42,80 +48,120 @@ type AppFactory<T extends FrameworkApplication> = (props?: Record<string, any>) 
  */
 export default function createMfe<T extends FrameworkApplication>(
   appFactory: AppFactory<T>,
-  {
-    name,
-    cssURLs = [],
-  }: Options
+  options: Options,
 ) {
-  let lifeCycleFunctions: LifecycleFunctions = {
-    mount: () => {},
-    unmount: () => {},
-  };
+  const logger = new ConsoleWcfLogger()
+  // Track lifecycle functions per element instance so multiple components can mount independently
+  const lifecycleMap = new WeakMap<Element, LifecycleFunctions>()
+
+  const _createCustomElement = () => {
+    if (customElements.get(options.name)) {
+      logger.debug(`MFE custom element "${options.name}" already defined.`)
+      return
+    }
+    const cssList = options.cssURLs?.join(', ') ?? ''
+    logger.debug(
+      `Registering MFE with name "${options.name}"` + (cssList ? ` and CSS URLs: ${cssList}` : ''),
+    )
+    customElements.define(options.name, MfeComponent)
+  }
+
+  const _executeOnCustomElements = (callback: (el: Element) => void) => {
+    const nodes = document.querySelectorAll(options.name)
+    nodes.forEach(callback)
+  }
 
   class MfeComponent extends HTMLElement {
-    #appInstance: FrameworkApplication | null = null;
-    #internals: ElementInternals;
-    #isMounted: boolean = false;
-    #logger: ConsoleWcfLogger = new ConsoleWcfLogger()
-
-    constructor() {
-      super();
-      this.#internals = this.attachInternals();
-    }
+    #appInstance: FrameworkApplication | null = null
+    #isMounted = false
 
     connectedCallback() {
-      const shadowRoot = this.attachShadow({ mode: 'open' });
-      const host = this.#internals.shadowRoot.host as HTMLElement;
-      const dataset = host.dataset as ComponentAttributes;
-      const componentProps: ComponentProps = JSON.parse(dataset.props);
+      const dataset = this.dataset as ComponentAttributes
+      let componentProps: ComponentProps = {}
+      if (dataset.props) {
+        try {
+          componentProps = JSON.parse(dataset.props) as ComponentProps
+        } catch (e) {
+          logger.warn(`Failed to parse props for MFE ${options.name}: ${String(e)}`)
+          componentProps = {}
+        }
+      }
 
       // Create and append a <link> tag for each absolute CSS URL.
-      cssURLs.forEach(cssUrl => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = cssUrl;
-        shadowRoot.appendChild(link);
-      });
+      options.cssURLs?.forEach((cssUrl) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = cssUrl
+        this.appendChild(link)
+      })
 
-      const mountPoint = document.createElement('div');
-      shadowRoot.appendChild(mountPoint);
+      const rootContainer = document.createElement('div')
+      this.appendChild(rootContainer)
+
+      const bootstrap = () => {
+        logger.debug(`Bootstrapping MFE ${options.name}`)
+        appFactory({ rootContainer, props: componentProps }).bootstrap()
+      }
 
       const mount = () => {
-        if(this.#isMounted) {
-          this.#logger.warn('MFE is already mounted.');
-          return;
+        if (this.#isMounted) {
+          logger.debug(`MFE ${options.name} is already mounted.`)
+          return
         }
-        this.#appInstance = appFactory(componentProps);
-        this.#appInstance.mount(mountPoint)
-        this.#isMounted = true;
-      };
-      const unmount = () => {
-        this.#appInstance.unmount();
-        this.#isMounted = false;
-      };
+        logger.debug(`Mounting MFE ${options.name}`)
+        this.#appInstance = appFactory({
+          rootContainer,
+          props: componentProps,
+        })
+        this.#appInstance.mount()
+        this.#isMounted = true
+      }
 
-      lifeCycleFunctions = {
-        mount,
-        unmount,
-      };
+      const unmount = () => {
+        if (!this.#isMounted) {
+          logger.debug(`MFE ${options.name} is not mounted.`)
+          return
+        }
+        this.#appInstance?.unmount()
+        this.#isMounted = false
+      }
+
+      lifecycleMap.set(this, { mount, unmount, bootstrap })
+      mount()
     }
 
     disconnectedCallback() {
-      if (this.#appInstance) {
-        this.#appInstance.unmount();
-        this.#appInstance = null;
-        this.#isMounted = false;
+      if (!this.#isMounted) {
+        logger.debug(`MFE ${options.name}is not mounted.`)
+        return
       }
+      logger.debug(`Unmounting MFE ${options.name}`)
+      this.#appInstance?.unmount()
+      this.#appInstance = null
     }
   }
 
-  customElements.define(name, MfeComponent);
-
   return {
-    ...lifeCycleFunctions
-  };
-}
-
-export {
-  wcfRenderer,
+    bootstrap: _createCustomElement,
+    mount: () => {
+      if (!options.name) {
+        logger.error('MFE name is missing.')
+        return
+      }
+      // Mount all current instances that are not mounted yet
+      _executeOnCustomElements((el) => {
+        lifecycleMap.get(el)?.mount()
+      })
+    },
+    unmount: () => {
+      if (!options.name) {
+        logger.error('MFE name is missing.')
+        return
+      }
+      // Unmount all current instances of this custom element on the page
+      _executeOnCustomElements((el) => {
+        lifecycleMap.get(el)?.unmount()
+      })
+    },
+  }
 }

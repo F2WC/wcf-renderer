@@ -1,38 +1,36 @@
 /**
  * Simple console logger for the WCF SDK. All messages are prefixed with [WCF]:
+ *
+ * TODO: Add log levels that can be configured via config
  */
-export type LogMethod = (...args: any[]) => void;
+export type LogMethod = (message: string) => void
 
 export class ConsoleWcfLogger {
-  private readonly prefix = '[WCF]:';
+  private readonly prefix = '[WCF]:'
+  private readonly debugPrefix = '[WCF - DEBUG]:'
 
-  log: LogMethod = (...args) => {
-    // eslint-disable-next-line no-console
-    console.log(this.prefix, ...args);
-  };
+  log: LogMethod = (message) => {
+    console.log(this.prefix, message)
+  }
 
-  info: LogMethod = (...args) => {
-    // eslint-disable-next-line no-console
-    console.info(this.prefix, ...args);
-  };
+  info: LogMethod = (message) => {
+    console.info(this.prefix, message)
+  }
 
-  warn: LogMethod = (...args) => {
-    // eslint-disable-next-line no-console
-    console.warn(this.prefix, ...args);
-  };
+  warn: LogMethod = (message) => {
+    console.warn(this.prefix, message)
+  }
 
-  error: LogMethod = (...args) => {
-    // eslint-disable-next-line no-console
-    console.error(this.prefix, ...args);
-  };
+  error: LogMethod = (message) => {
+    console.error(this.prefix, message)
+  }
 
-  debug: LogMethod = (...args) => {
-    // eslint-disable-next-line no-console
-    console.debug(this.prefix, ...args);
-  };
+  debug: LogMethod = (message) => {
+    console.info(`%c${this.debugPrefix}`, 'color: #00BFFF', message)
+  }
 }
 
 /**
  * A ready-to-use singleton instance.
  */
-export const wcfLogger = new ConsoleWcfLogger();
+export const wcfLogger = new ConsoleWcfLogger()
