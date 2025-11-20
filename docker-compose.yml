@@ -1,0 +1,89 @@
+version: '3.9'
+
+services:
+  app-shell:
+    image: node:24-alpine
+    working_dir: /app/playground/shell
+    # Wait until both MFEs produced their first build artifact, then start Vite dev server
+    command: >-
+      sh -lc "npm ci && \
+      for i in $(seq 1 120); do \
+        [ -f ../mfe-vue-one/dist/index.js ] && [ -f ../mfe-react-one/dist/index.js ] && break; \
+        echo 'Waiting for MFEs to build...' && sleep 1; \
+      done; \
+      if [ ! -f ../mfe-vue-one/dist/index.js ] || [ ! -f ../mfe-react-one/dist/index.js ]; then \
+        echo 'MFEs not built within timeout' >&2; exit 1; \
+      fi; \
+      npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - '5173:5173'
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - appshell_node_modules:/app/playground/shell/node_modules
+    depends_on:
+      mfe-vue-one:
+        condition: service_healthy
+      mfe-react-one:
+        condition: service_healthy
+
+  mfe-vue-one:
+    image: node:24-alpine
+    working_dir: /app/playground/mfe-vue-one
+    command: sh -lc "mkdir -p ../../packages/sdk/dist && npm ci && npm run build-only -- --watch"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - mfe_vue_node_modules:/app/playground/mfe-vue-one/node_modules
+    depends_on:
+      sdk:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/playground/mfe-vue-one/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 20s
+
+  mfe-react-one:
+    image: node:24-alpine
+    working_dir: /app/playground/mfe-react-one
+    command: sh -lc "mkdir -p ../../packages/sdk/dist && npm ci && npm run build -- --watch"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - mfe_react_node_modules:/app/playground/mfe-react-one/node_modules
+    depends_on:
+      sdk:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/playground/mfe-react-one/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 20s
+
+  sdk:
+    image: node:24-alpine
+    working_dir: /app/packages/sdk
+    command: sh -lc "npm ci && npm run dev"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - sdk_node_modules:/app/packages/sdk/node_modules
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/packages/sdk/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 10s
+
+volumes:
+  appshell_node_modules:
+  mfe_vue_node_modules:
+  mfe_react_node_modules:
+  sdk_node_modules:
