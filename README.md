@@ -1,5 +1,9 @@
 # Web Component Framework Renderer
 
+> [!WARNING]  
+> This project is still under heavy development and not yet feature complete. The description does not match the current
+> capabilities that have been implemented yet. Check the roadmap to see the current progress.
+
 A tiny SDK and set of conventions for rendering multiple front-end frameworks (React, Vue, and in the future
 Angular and others) side‑by‑side on the same web page via Web Components/Micro‑Frontend (MFE) patterns.
 
