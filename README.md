@@ -77,67 +77,38 @@ npm run lint:script
 npm run lint:script:fix
 ```
 
-## Roadmap / TODO (consolidated)
+## Roadmap / TODO
 
-Legend: Items marked with AI* were suggested by the assistant. Your original items have been rephrased for clarity; where they overlap with AI* entries, they are merged and called out below.
+This is a living roadmap, nothing here is set in stone that it will come, but most likely there is still a lot of stuff
+missing in this list for example propper SSR support. First i want to focus on the MVP and continue from there.
 
 App Shell
 
-- Create an App Shell package responsible for routing, orchestration.
-- Move the current `/src` and related root host files into a `shell/` subfolder.
-- Provide a very easy local startup: a single command to run the shell and watch packages.
-  - Docker‑based dev compose for one‑command local boot. AI\*
+1. [ ] Create an App Shell package responsible for routing, orchestration.
+   1. [ ] Implement router, it should work similar to other Framework routers like Vue Router.
 
 SDK
 
-- Define a clear MFE contract: attributes/props schema, events, and lifecycle signatures; versioned and documented.
-- Implement a type‑safe event bus with namespacing and wildcard listeners; generate TS types from the contract.
+1. [ ] Define a clear MFE contract: attributes/props schema, events, and lifecycle signatures; versioned and documented.
+2. [ ] Implement a type‑safe event bus with namespacing and wildcard listeners; generate TS types from the contract.
+3. [ ] Expose a vite plugin that generates a importmap for the project containing entry files for JS and CSS
 
 Monorepo and Repository
 
-- Split the repo into `packages/` with at least `sdk/` and `shell/`.
-- Enable workspaces and a monorepo tool (Lerna) for builds, versioning, and pipelines.
-- Update the repository to include all project files, not just the SDK.
+1. [x] Split the repo into `packages/` with at least `sdk/` and `shell/`.
+2. [x] Enable workspaces and a monorepo tool (Lerna) for builds, versioning, and pipelines.
+3. [x] Update the repository to include all project files, not just the SDK.
 
 Quality, Tooling, and Operations
 
-- Add E2E tests (Playwright) to verify multi‑framework rendering, navigation, and cross‑MFE events.
-- Add unit tests for SDK adapters and Web Component lifecycle (Vitest).
-- Set performance budgets and a lazy‑loading strategy per route/MFE; prefetch/module federation where applicable.
-- Accessibility checklist and examples; ARIA patterns for composite components.
-- Telemetry hooks: standardized events for mounts, errors, timings; pluggable reporter (console/datadog).
-- Example gallery: minimal React/Vue MFEs with identical UI to demonstrate parity.
-- Documentation site (VitePress) with live examples and API references.
-- Continuous Integration: lint, typecheck, build, test, and preview deployments on each PR.
-- Release strategy: semantic‑release with conventional commits and automated changelogs.
-- Publish packages to npm under an org scope; include example consumers.
-- MAYBE: Establish Shadow DOM and CSS isolation strategy; document opt‑in/out and shared design tokens.
-
-## Monorepo plan (draft)
-
-Target structure once the Shell exists and packages are split:
-
-```
-/
-├── packages/
-│   ├── sdk/             # Core SDK used by framework adapters and MFEs
-│   ├── shell/           # App Shell (router, layout, orchestration)
-└── playground/
-    ├── vue/             # Eaxmple vue entry
-    ├── react/           # Eaxmple react entry
-    └── shell/           # Example shell app wiring several MFEs together
-```
-
-Tooling:
-
-- npm workspaces + Lerna
-- Shared TS config, ESLint, and build scripts
-
-## Local development (quick start ideas)
-
-- Single command: `npm run dev` should start the shell and watch all packages in parallel
-- `docker compose up` to run a preconfigured dev environment
-
-## License
-
-ISC
+1. [ ] Add E2E tests (Playwright) to verify multi‑framework rendering, navigation, and cross‑MFE events.
+2. [ ] Add unit tests for SDK adapters and Web Component lifecycle (Vitest).
+3. [ ] Set performance budgets and a lazy‑loading strategy per route/MFE; prefetch/module federation where applicable.
+4. [ ] Accessibility checklist and examples; ARIA patterns for composite components.
+5. [ ] Telemetry hooks: standardized events for mounts, errors, timings; pluggable reporter (console/datadog).
+6. [ ] Example gallery: minimal React/Vue MFEs with identical UI to demonstrate parity.
+7. [ ] Documentation site (VitePress) with live examples and API references.
+8. [ ] Continuous Integration: lint, typecheck, build, test, and preview deployments on each PR.
+9. [ ] Release strategy: semantic‑release with conventional commits and automated changelogs.
+10. [ ] Publish packages to npm under an org scope; include example consumers.
+11. [ ] MAYBE: Establish Shadow DOM and CSS isolation strategy.
