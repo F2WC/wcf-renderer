@@ -9,4 +9,9 @@ export default defineConfig({
       '~': fileURLToPath(new URL('../', import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['@mf/vue', '@mf/react'],
+    },
+  }
 })

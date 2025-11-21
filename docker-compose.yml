@@ -82,6 +82,16 @@ services:
       retries: 60
       start_period: 10s
 
+  nginx:
+    image: nginx:alpine3.22-slim
+    volumes:
+      - ./playground/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./playground/mfe-vue-one/dist:/usr/share/nginx/html/vue
+      - ./playground/mfe-react-one/dist:/usr/share/nginx/html/react
+      - ./playground/shell/dist:/usr/share/nginx/html/shell
+    ports:
+      - "8080:8080"
+
 volumes:
   appshell_node_modules:
   mfe_vue_node_modules:

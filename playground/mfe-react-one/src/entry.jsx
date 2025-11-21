@@ -21,7 +21,7 @@ const reactLifecycles = createMfe(
   },
   {
     name: 'mfe-react-one',
-    cssURLs: [],
+      cssURLs: ['http://localhost:8080/react/index.css'],
   },
 )
 

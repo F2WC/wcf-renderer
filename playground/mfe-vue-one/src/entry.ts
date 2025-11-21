@@ -19,7 +19,7 @@ const vueLifecycles = createMfe(
   },
   {
     name: 'mfe-vue-one',
-    cssURLs: ['http://localhost:4173/index.css'],
+    cssURLs: ['http://localhost:8080/vue/index.css'],
   },
 )
 

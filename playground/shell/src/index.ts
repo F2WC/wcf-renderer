@@ -1,5 +1,7 @@
-const mfeVue = await import('~/mfe-vue-one/dist/index.js')
-const mfeReact = await import('~/mfe-react-one/dist/index.js')
+const mfeVueName = '@mf/vue'
+const mfeReactName = '@mf/react'
+const mfeVue = await import(/* @vite-ignore */ mfeVueName)
+const mfeReact = await import(/* @vite-ignore */ mfeReactName)
 
 mfeVue.bootstrap()
 mfeReact.bootstrap()
