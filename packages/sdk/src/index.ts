@@ -107,8 +107,7 @@ export default function createMfe<T extends FrameworkApplication>(
       })
 
       if(options.customRootContainer) {
-        // TODO we need to clone this element and create it again so the same vue app can mount multiple times with a passed root container
-        this.#rootContainer = options.customRootContainer
+        this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
       }
 
       this.appendChild(this.#rootContainer)
