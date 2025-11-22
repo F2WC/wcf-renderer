@@ -98,7 +98,7 @@ export default function createMfe<T extends FrameworkApplication>(
       })
 
       if(options.customRootContainer) {
-        this.#rootContainer = options.customRootContainer
+        this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
       }
 
       this.appendChild(this.#rootContainer)
