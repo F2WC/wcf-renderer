@@ -2,18 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Vue Web Component</title>
-    <!--
-      Include the built JavaScript file.
-      The exact path depends on your build output configuration.
-      For example, if it's in a 'dist' folder.
-    -->
+    <title>Web Component Framework Renderer</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@mf/vue": "http://localhost:8080/vue/index.js",
+          "@mf/react": "http://localhost:8080/react/index.js"
+        }
+      }
+    </script>
     <script type="module" src="/src/index.ts"></script>
   </head>
   <body>
     <!-- Use your web component -->
     <mfe-vue-one data-props='{"test": "hello"}'></mfe-vue-one>
-    <mfe-react-one data-props='{"test": "hello"}'></mfe-react-one>
-    <mfe-react-one data-props='{"test": "hello"}'></mfe-react-one>
+    <mfe-vue-one data-props='{"test": "hello"}'></mfe-vue-one>
   </body>
 </html>
