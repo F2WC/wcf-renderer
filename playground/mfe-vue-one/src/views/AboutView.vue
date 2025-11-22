@@ -1,6 +1,5 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
     <mfe-react-one data-props='{"test": "hello"}'></mfe-react-one>
   </div>
 </template>

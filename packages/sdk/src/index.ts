@@ -5,7 +5,7 @@ import { ConsoleWcfLogger } from '@/logger.js'
  * It must have `mount` and `unmount` methods.
  */
 interface FrameworkApplication {
-  bootstrap(): void
+  bootstrap?(): void
   mount(): void
   unmount(): void
 }
@@ -18,7 +18,8 @@ interface LifecycleFunctions {
 
 interface Options {
   name: string
-  cssURLs?: string[]
+  cssURLs?: string[],
+  customRootContainer?: HTMLElement
 }
 
 interface ComponentAttributes {
@@ -28,7 +29,7 @@ interface ComponentAttributes {
 type ComponentProps = Record<string, unknown>
 
 interface CreateMfeOptions {
-  rootContainer: string | Element
+  rootContainer: HTMLElement
   props?: Record<string, unknown>
 }
 
@@ -74,6 +75,7 @@ export default function createMfe<T extends FrameworkApplication>(
   class MfeComponent extends HTMLElement {
     #appInstance: FrameworkApplication | null = null
     #isMounted = false
+    #rootContainer: HTMLElement = document.createElement('div')
 
     connectedCallback() {
       const dataset = this.dataset as ComponentAttributes
@@ -95,12 +97,20 @@ export default function createMfe<T extends FrameworkApplication>(
         this.appendChild(link)
       })
 
-      const rootContainer = document.createElement('div')
-      this.appendChild(rootContainer)
+      if(options.customRootContainer) {
+        this.#rootContainer = options.customRootContainer
+      }
+
+      this.appendChild(this.#rootContainer)
 
       const bootstrap = () => {
         logger.debug(`Bootstrapping MFE ${options.name}`)
-        appFactory({ rootContainer, props: componentProps }).bootstrap()
+        this.#appInstance = appFactory({
+          rootContainer: this.#rootContainer,
+          props: componentProps,
+        })
+        // TODO: Make MaybePromise
+        this.#appInstance.bootstrap?.()
       }
 
       const mount = () => {
@@ -109,11 +119,8 @@ export default function createMfe<T extends FrameworkApplication>(
           return
         }
         logger.debug(`Mounting MFE ${options.name}`)
-        this.#appInstance = appFactory({
-          rootContainer,
-          props: componentProps,
-        })
-        this.#appInstance.mount()
+        // TODO: Make MaybePromise
+        this.#appInstance?.mount()
         this.#isMounted = true
       }
 
@@ -122,11 +129,13 @@ export default function createMfe<T extends FrameworkApplication>(
           logger.debug(`MFE ${options.name} is not mounted.`)
           return
         }
+        // TODO: Make MaybePromise
         this.#appInstance?.unmount()
         this.#isMounted = false
       }
 
       lifecycleMap.set(this, { mount, unmount, bootstrap })
+      bootstrap()
       mount()
     }
 
