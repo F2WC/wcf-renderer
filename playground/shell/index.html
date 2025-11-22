@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Vue Web Component</title>
+    <title>Web Component Framework Renderer</title>
     <script type="importmap">
       {
         "imports": {
@@ -11,16 +11,10 @@
         }
       }
     </script>
-
-    <!--
-      Include the built JavaScript file.
-      The exact path depends on your build output configuration.
-      For example, if it's in a 'dist' folder.
-    -->
     <script type="module" src="/src/index.ts"></script>
   </head>
   <body>
     <!-- Use your web component -->
-    <mfe-vue-one data-props='{"test": "hello"}'></mfe-vue-one>
+    <mfe-vue-one data-props='{"test": "hello"}' id="app"></mfe-vue-one>
   </body>
 </html>
