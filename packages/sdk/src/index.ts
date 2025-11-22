@@ -10,6 +10,10 @@ interface FrameworkApplication {
   unmount(): void
 }
 
+interface AppInstance extends FrameworkApplication {
+  id: string;
+}
+
 interface LifecycleFunctions {
   bootstrap: () => void
   mount: () => void
@@ -73,7 +77,12 @@ export default function createMfe<T extends FrameworkApplication>(
   }
 
   class MfeComponent extends HTMLElement {
-    #appInstance: FrameworkApplication | null = null
+    #appInstance: AppInstance = {
+      id: crypto.randomUUID(),
+      bootstrap: () => {},
+      mount: () => {},
+      unmount: () => {},
+    }
     #isMounted = false
     #rootContainer: HTMLElement = document.createElement('div')
 
@@ -98,29 +107,34 @@ export default function createMfe<T extends FrameworkApplication>(
       })
 
       if(options.customRootContainer) {
+        // TODO we need to clone this element and create it again so the same vue app can mount multiple times with a passed root container
         this.#rootContainer = options.customRootContainer
       }
 
       this.appendChild(this.#rootContainer)
 
       const bootstrap = () => {
-        logger.debug(`Bootstrapping MFE ${options.name}`)
-        this.#appInstance = appFactory({
-          rootContainer: this.#rootContainer,
-          props: componentProps,
-        })
+        logger.debug(`Bootstrapping MFE ${options.name} with id ${this.#appInstance.id}`)
+        this.#appInstance = {
+          ...this.#appInstance,
+          ...appFactory({
+            rootContainer: this.#rootContainer,
+            props: componentProps,
+          })
+        }
+
         // TODO: Make MaybePromise
         this.#appInstance.bootstrap?.()
       }
 
       const mount = () => {
         if (this.#isMounted) {
-          logger.debug(`MFE ${options.name} is already mounted.`)
+          logger.debug(`MFE ${options.name} with id ${this.#appInstance.id} is already mounted.`)
           return
         }
-        logger.debug(`Mounting MFE ${options.name}`)
+        logger.debug(`Mounting MFE ${options.name} with id ${this.#appInstance.id}`)
         // TODO: Make MaybePromise
-        this.#appInstance?.mount()
+        this.#appInstance.mount()
         this.#isMounted = true
       }
 
@@ -130,7 +144,7 @@ export default function createMfe<T extends FrameworkApplication>(
           return
         }
         // TODO: Make MaybePromise
-        this.#appInstance?.unmount()
+        this.#appInstance.unmount()
         this.#isMounted = false
       }
 
@@ -145,8 +159,7 @@ export default function createMfe<T extends FrameworkApplication>(
         return
       }
       logger.debug(`Unmounting MFE ${options.name}`)
-      this.#appInstance?.unmount()
-      this.#appInstance = null
+      this.#appInstance.unmount()
     }
   }
 
