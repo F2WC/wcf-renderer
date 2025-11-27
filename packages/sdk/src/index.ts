@@ -1,13 +1,15 @@
 import { ConsoleWcfLogger } from '@/logger.js'
 
+export type MaybePromise<T> = T | Promise<T>;
+
 /**
  * A generic interface for a micro-frontend application instance from any framework.
  * It must have `mount` and `unmount` methods.
  */
 interface FrameworkApplication {
-  bootstrap?(): void
-  mount(): void
-  unmount(): void
+  bootstrap?(): MaybePromise<void>
+  mount(): MaybePromise<void>
+  unmount(): MaybePromise<void>
 }
 
 interface AppInstance extends FrameworkApplication {
@@ -15,9 +17,9 @@ interface AppInstance extends FrameworkApplication {
 }
 
 interface LifecycleFunctions {
-  bootstrap: () => void
-  mount: () => void
-  unmount: () => void
+  bootstrap: () => MaybePromise<void>
+  mount: () => MaybePromise<void>
+  unmount: () => MaybePromise<void>
 }
 
 interface Options {
@@ -119,19 +121,19 @@ export default function createMfe<T extends FrameworkApplication>(
   class MfeComponent extends HTMLElement {
     #appInstance: AppInstance = {
       id: crypto.randomUUID(),
-      bootstrap: () => {},
-      mount: () => {},
-      unmount: () => {},
+      bootstrap: async () => {},
+      mount: async () => {},
+      unmount: async () => {},
     }
     #isMounted = false
     #rootContainer: HTMLElement = document.createElement('div')
 
-    connectedCallback() {
+    async connectedCallback() {
       if(options.customRootContainer) {
         this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
       }
 
-      const bootstrap = () => {
+      const bootstrap = async () => {
         logger.debug(`Bootstrapping MFE ${options.name} with id ${this.#appInstance.id}`)
 
         this.#appInstance = {
@@ -148,22 +150,20 @@ export default function createMfe<T extends FrameworkApplication>(
         })
 
         this.appendChild(this.#rootContainer)
-        // TODO: Make MaybePromise
-        this.#appInstance.bootstrap?.()
+        await this.#appInstance.bootstrap?.()
       }
 
-      const mount = () => {
+      const mount = async () => {
         if (this.#isMounted) {
           logger.debug(`MFE ${options.name} with id ${this.#appInstance.id} is already mounted.`)
           return
         }
         logger.debug(`Mounting MFE ${options.name} with id ${this.#appInstance.id}`)
-        // TODO: Make MaybePromise
-        this.#appInstance.mount()
+        await this.#appInstance.mount()
         this.#isMounted = true
       }
 
-      const unmount = () => {
+      const unmount = async () => {
         if (!this.#isMounted) {
           logger.debug(`MFE ${options.name} is not mounted.`)
           return
@@ -172,18 +172,17 @@ export default function createMfe<T extends FrameworkApplication>(
         options.cssURLs?.forEach(() => {
           _deleteStyleElements(this.#appInstance.id)
         })
-        // TODO: Make MaybePromise
-        this.#appInstance.unmount()
+        await this.#appInstance.unmount()
         this.#isMounted = false
       }
 
       lifecycleMap.set(this, { mount, unmount, bootstrap })
-      bootstrap()
-      mount()
+      await bootstrap()
+      await mount()
     }
 
-    disconnectedCallback() {
-      lifecycleMap.get(this)?.unmount()
+    async disconnectedCallback() {
+      await lifecycleMap.get(this)?.unmount()
     }
   }
 
@@ -195,8 +194,8 @@ export default function createMfe<T extends FrameworkApplication>(
         return
       }
       // Mount all current instances that are not mounted yet
-      _executeOnCustomElements((el) => {
-        lifecycleMap.get(el)?.mount()
+      _executeOnCustomElements(async (el) => {
+        await lifecycleMap.get(el)?.mount()
       })
     },
     unmount: () => {
@@ -205,8 +204,8 @@ export default function createMfe<T extends FrameworkApplication>(
         return
       }
       // Unmount all current instances of this custom element on the page
-      _executeOnCustomElements((el) => {
-        lifecycleMap.get(el)?.unmount()
+      _executeOnCustomElements(async (el) => {
+        await lifecycleMap.get(el)?.unmount()
       })
     },
   }
