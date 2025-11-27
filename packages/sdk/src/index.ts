@@ -71,6 +71,34 @@ export default function createMfe<T extends FrameworkApplication>(
     customElements.define(options.name, MfeComponent)
   }
 
+  const _createStyleElement = (cssUrl: string, id: string) => {
+    const styleAlreadyExists = document.head.querySelector(`link[href="${cssUrl}"]`)
+    if(styleAlreadyExists) return
+
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = cssUrl
+    link.setAttribute(`data-wcf-${id}`, '')
+    document.head.appendChild(link)
+  }
+
+  const _deleteStyleElements = (id: string) => {
+    const links = document.querySelectorAll(`link[data-wcf-${id}][rel="stylesheet"]`)
+    links.forEach(link => link.remove())
+  }
+
+  const _createPreloadLink = (cssUrl: string, id: string) => {
+    const preloadAlreadyExists = document.head.querySelector(`link[href="${cssUrl}"][rel="preload"]`)
+    if(preloadAlreadyExists) return
+
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.href = cssUrl
+    link.as = 'style'
+    link.setAttribute(`data-wcf-${id}`, '')
+    document.head.appendChild(link)
+  }
+
   const _executeOnCustomElements = (callback: (el: Element) => void) => {
     const nodes = document.querySelectorAll(options.name)
     nodes.forEach(callback)
@@ -87,6 +115,7 @@ export default function createMfe<T extends FrameworkApplication>(
     #rootContainer: HTMLElement = document.createElement('div')
 
     connectedCallback() {
+      // TODO: Handle props also in bootstrap hook
       const dataset = this.dataset as ComponentAttributes
       let componentProps: ComponentProps = {}
       if (dataset.props) {
@@ -98,19 +127,9 @@ export default function createMfe<T extends FrameworkApplication>(
         }
       }
 
-      // Create and append a <link> tag for each absolute CSS URL.
-      options.cssURLs?.forEach((cssUrl) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = cssUrl
-        this.appendChild(link)
-      })
-
       if(options.customRootContainer) {
         this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
       }
-
-      this.appendChild(this.#rootContainer)
 
       const bootstrap = () => {
         logger.debug(`Bootstrapping MFE ${options.name} with id ${this.#appInstance.id}`)
@@ -122,6 +141,12 @@ export default function createMfe<T extends FrameworkApplication>(
           })
         }
 
+        options.cssURLs?.forEach((cssUrl) => {
+          _createStyleElement(cssUrl, this.#appInstance.id)
+          _createPreloadLink(cssUrl, this.#appInstance.id)
+        })
+
+        this.appendChild(this.#rootContainer)
         // TODO: Make MaybePromise
         this.#appInstance.bootstrap?.()
       }
@@ -142,6 +167,10 @@ export default function createMfe<T extends FrameworkApplication>(
           logger.debug(`MFE ${options.name} is not mounted.`)
           return
         }
+        logger.debug(`Unmounting MFE ${options.name} with id ${this.#appInstance.id}.`)
+        options.cssURLs?.forEach(() => {
+          _deleteStyleElements(this.#appInstance.id)
+        })
         // TODO: Make MaybePromise
         this.#appInstance.unmount()
         this.#isMounted = false
@@ -153,12 +182,7 @@ export default function createMfe<T extends FrameworkApplication>(
     }
 
     disconnectedCallback() {
-      if (!this.#isMounted) {
-        logger.debug(`MFE ${options.name}is not mounted.`)
-        return
-      }
-      logger.debug(`Unmounting MFE ${options.name}`)
-      this.#appInstance.unmount()
+      lifecycleMap.get(this)?.unmount()
     }
   }
 
