@@ -96,10 +96,11 @@ SDK
 1. [ ] Define a clear MFE contract: attributes/props schema, events, and lifecycle signatures; versioned and documented.
 2. [ ] Implement a type‑safe event bus with namespacing and wildcard listeners; generate TS types from the contract.
 3. [ ] Expose a vite plugin that generates a importmap for the project containing entry files for JS and CSS
-4. [ ] Make lifecycle functions MaybePromise
+4. [x] Make lifecycle functions MaybePromise
 5. [x] Move CSS links to head and also add preload
 6. [x] Remove CSS when MFE unmounts
 7. [ ] Explore ways to better isolate CSS
+8. [ ] Split code from one single file into a proper structure
 
 Monorepo and Repository
 
