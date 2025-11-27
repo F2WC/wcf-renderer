@@ -4,13 +4,13 @@ import App from './App.jsx'
 import createMfe from 'web-component-framework-renderer-sdk'
 
 const reactLifecycles = createMfe(
-  ({ rootContainer }) => {
+  ({ rootContainer, props }) => {
     const root = createRoot(rootContainer)
     return {
       mount: () => {
         root.render(
           <StrictMode>
-            <App />
+            <App initialCount={props?.initialCount ?? 0}/>
           </StrictMode>,
         )
       },

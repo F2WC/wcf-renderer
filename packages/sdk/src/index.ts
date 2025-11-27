@@ -104,6 +104,18 @@ export default function createMfe<T extends FrameworkApplication>(
     nodes.forEach(callback)
   }
 
+  const _getComponentProps = (el: HTMLElement) => {
+    const dataset = el.dataset as ComponentAttributes
+    if (dataset.props) {
+      try {
+        return JSON.parse(dataset.props) as ComponentProps
+      } catch (e) {
+        logger.warn(`Failed to parse props for MFE ${options.name}: ${String(e)}`)
+      }
+    }
+
+  }
+
   class MfeComponent extends HTMLElement {
     #appInstance: AppInstance = {
       id: crypto.randomUUID(),
@@ -115,29 +127,18 @@ export default function createMfe<T extends FrameworkApplication>(
     #rootContainer: HTMLElement = document.createElement('div')
 
     connectedCallback() {
-      // TODO: Handle props also in bootstrap hook
-      const dataset = this.dataset as ComponentAttributes
-      let componentProps: ComponentProps = {}
-      if (dataset.props) {
-        try {
-          componentProps = JSON.parse(dataset.props) as ComponentProps
-        } catch (e) {
-          logger.warn(`Failed to parse props for MFE ${options.name}: ${String(e)}`)
-          componentProps = {}
-        }
-      }
-
       if(options.customRootContainer) {
         this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
       }
 
       const bootstrap = () => {
         logger.debug(`Bootstrapping MFE ${options.name} with id ${this.#appInstance.id}`)
+
         this.#appInstance = {
           ...this.#appInstance,
           ...appFactory({
             rootContainer: this.#rootContainer,
-            props: componentProps,
+            props: _getComponentProps(this),
           })
         }
 

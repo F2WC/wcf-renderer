@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    <mfe-react-one data-props='{"test": "hello"}'></mfe-react-one>
+    <mfe-react-one data-props='{"initialCount": 7}'></mfe-react-one>
   </div>
 </template>
 
