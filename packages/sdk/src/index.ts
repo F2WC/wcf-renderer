@@ -169,10 +169,11 @@ export default function createMfe<T extends FrameworkApplication>(
           return
         }
         logger.debug(`Unmounting MFE ${options.name} with id ${this.#appInstance.id}.`)
+        await this.#appInstance.unmount()
+
         options.cssURLs?.forEach(() => {
           _deleteStyleElements(this.#appInstance.id)
         })
-        await this.#appInstance.unmount()
         this.#isMounted = false
       }
 
