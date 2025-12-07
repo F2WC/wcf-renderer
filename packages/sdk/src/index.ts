@@ -281,7 +281,6 @@ export default function createMfe(
       }
 
       try {
-        _createCustomElement()
         await _executeOnCustomElements(async (el) => {
           await lifecycleMap.get(el)?.bootstrap()
         })
