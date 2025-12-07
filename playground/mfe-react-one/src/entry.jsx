@@ -25,6 +25,7 @@ const reactLifecycles = createMfe(
   },
 )
 
+export const { register } = reactLifecycles
 export const { bootstrap } = reactLifecycles
 export const { mount } = reactLifecycles
 export const { unmount } = reactLifecycles

@@ -90,7 +90,7 @@ services:
       - ./playground/mfe-react-one/dist:/usr/share/nginx/html/react
       - ./playground/shell/dist:/usr/share/nginx/html/shell
     ports:
-      - "8080:8080"
+      - '8080:8080'
 
 volumes:
   appshell_node_modules:

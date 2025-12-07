@@ -1,35 +1,30 @@
 import { ConsoleWcfLogger } from '@/logger.js'
 
-export type MaybePromise<T> = T | Promise<T>;
-
-/**
- * A generic interface for a micro-frontend application instance from any framework.
- * It must have `mount` and `unmount` methods.
- */
-interface FrameworkApplication {
-  bootstrap?(): MaybePromise<void>
-  mount(): MaybePromise<void>
-  unmount(): MaybePromise<void>
-}
-
-interface AppInstance extends FrameworkApplication {
-  id: string;
-}
+export type MaybePromise<T> = T | Promise<T>
 
 interface LifecycleFunctions {
-  bootstrap: () => MaybePromise<void>
+  bootstrap?: () => MaybePromise<void>
   mount: () => MaybePromise<void>
   unmount: () => MaybePromise<void>
 }
 
+interface ExternalLifecycleFunctions extends Required<LifecycleFunctions> {
+  register: () => void
+}
+
+interface AppInstance extends ExternalLifecycleFunctions {
+  id: string
+}
+
 interface Options {
   name: string
-  cssURLs?: string[],
+  cssURLs?: string[]
   customRootContainer?: HTMLElement
 }
 
 interface ComponentAttributes {
   props?: string
+  autoMount?: string
 }
 
 type ComponentProps = Record<string, unknown>
@@ -43,7 +38,7 @@ interface CreateMfeOptions {
  * A factory function, provided by the MFE, that creates and returns a fresh
  * instance of its application. It can receive props from the AppShell.
  */
-type AppFactory<T extends FrameworkApplication> = (options: CreateMfeOptions) => T
+type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
 
 /**
  * Creates a class for a self-contained web component for a micro-frontend.
@@ -53,17 +48,19 @@ type AppFactory<T extends FrameworkApplication> = (options: CreateMfeOptions) =>
  * @param options
  * @returns An HTMLElement class that can be registered with `customElements.define()`.
  */
-export default function createMfe<T extends FrameworkApplication>(
-  appFactory: AppFactory<T>,
+export default function createMfe(
+  appFactory: AppFactory,
   options: Options,
-) {
+): ExternalLifecycleFunctions {
   const logger = new ConsoleWcfLogger()
   // Track lifecycle functions per element instance so multiple components can mount independently
-  const lifecycleMap = new WeakMap<Element, LifecycleFunctions>()
+  const lifecycleMap = new WeakMap<Element, Required<LifecycleFunctions>>()
 
   const _createCustomElement = () => {
     if (customElements.get(options.name)) {
-      logger.debug(`MFE custom element "${options.name}" already defined.`)
+      logger.debug(
+        `MFE custom element "${options.name}" already defined skipping custom element registration.`,
+      )
       return
     }
     const cssList = options.cssURLs?.join(', ') ?? ''
@@ -74,8 +71,10 @@ export default function createMfe<T extends FrameworkApplication>(
   }
 
   const _createStyleElement = (cssUrl: string, id: string) => {
-    const styleAlreadyExists = document.head.querySelector(`link[href="${cssUrl}"]`)
-    if(styleAlreadyExists) return
+    const styleAlreadyExists = document.head.querySelector(
+      `link[href="${cssUrl}"][rel="stylesheet"]`,
+    )
+    if (styleAlreadyExists) return
 
     const link = document.createElement('link')
     link.rel = 'stylesheet'
@@ -86,12 +85,16 @@ export default function createMfe<T extends FrameworkApplication>(
 
   const _deleteStyleElements = (id: string) => {
     const links = document.querySelectorAll(`link[data-wcf-${id}][rel="stylesheet"]`)
-    links.forEach(link => link.remove())
+    links.forEach((link) => {
+      link.remove()
+    })
   }
 
   const _createPreloadLink = (cssUrl: string, id: string) => {
-    const preloadAlreadyExists = document.head.querySelector(`link[href="${cssUrl}"][rel="preload"]`)
-    if(preloadAlreadyExists) return
+    const preloadAlreadyExists = document.head.querySelector(
+      `link[href="${cssUrl}"][rel="preload"]`,
+    )
+    if (preloadAlreadyExists) return
 
     const link = document.createElement('link')
     link.rel = 'preload'
@@ -101,13 +104,15 @@ export default function createMfe<T extends FrameworkApplication>(
     document.head.appendChild(link)
   }
 
-  const _executeOnCustomElements = (callback: (el: Element) => void) => {
+  const _executeOnCustomElements = async (callback: (el: Element) => MaybePromise<void>) => {
     const nodes = document.querySelectorAll(options.name)
-    nodes.forEach(callback)
+    if (!nodes.length) throw new Error(`No custom elements found with tag name "${options.name}"`)
+    for (const el of nodes) {
+      await callback(el)
+    }
   }
 
-  const _getComponentProps = (el: HTMLElement) => {
-    const dataset = el.dataset as ComponentAttributes
+  const _getComponentProps = (dataset: ComponentAttributes) => {
     if (dataset.props) {
       try {
         return JSON.parse(dataset.props) as ComponentProps
@@ -115,21 +120,31 @@ export default function createMfe<T extends FrameworkApplication>(
         logger.warn(`Failed to parse props for MFE ${options.name}: ${String(e)}`)
       }
     }
-
   }
 
   class MfeComponent extends HTMLElement {
     #appInstance: AppInstance = {
       id: crypto.randomUUID(),
-      bootstrap: async () => {},
-      mount: async () => {},
-      unmount: async () => {},
+      register: () => {
+        /* empty */
+      },
+      bootstrap: () => {
+        /* empty */
+      },
+      mount: () => {
+        /* empty */
+      },
+      unmount: () => {
+        /* empty */
+      },
     }
+    #isBootstrapped = false
     #isMounted = false
     #rootContainer: HTMLElement = document.createElement('div')
+    #attributes = this.dataset as ComponentAttributes
 
     async connectedCallback() {
-      if(options.customRootContainer) {
+      if (options.customRootContainer) {
         this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
       }
 
@@ -140,25 +155,33 @@ export default function createMfe<T extends FrameworkApplication>(
           ...this.#appInstance,
           ...appFactory({
             rootContainer: this.#rootContainer,
-            props: _getComponentProps(this),
-          })
+            props: _getComponentProps(this.#attributes),
+          }),
         }
+
+        this.appendChild(this.#rootContainer)
+        await this.#appInstance.bootstrap()
+        this.#isBootstrapped = true
+      }
+
+      const mount = async () => {
+        if (!this.#isBootstrapped) {
+          logger.debug(
+            `MFE ${options.name} with id ${this.#appInstance.id} is not bootstrapped yet.`,
+          )
+          return
+        }
+        if (this.#isMounted) {
+          logger.debug(`MFE ${options.name} with id ${this.#appInstance.id} is already mounted.`)
+          return
+        }
+        logger.debug(`Mounting MFE ${options.name} with id ${this.#appInstance.id}`)
 
         options.cssURLs?.forEach((cssUrl) => {
           _createStyleElement(cssUrl, this.#appInstance.id)
           _createPreloadLink(cssUrl, this.#appInstance.id)
         })
 
-        this.appendChild(this.#rootContainer)
-        await this.#appInstance.bootstrap?.()
-      }
-
-      const mount = async () => {
-        if (this.#isMounted) {
-          logger.debug(`MFE ${options.name} with id ${this.#appInstance.id} is already mounted.`)
-          return
-        }
-        logger.debug(`Mounting MFE ${options.name} with id ${this.#appInstance.id}`)
         await this.#appInstance.mount()
         this.#isMounted = true
       }
@@ -174,12 +197,17 @@ export default function createMfe<T extends FrameworkApplication>(
         options.cssURLs?.forEach(() => {
           _deleteStyleElements(this.#appInstance.id)
         })
+        this.removeChild(this.#rootContainer)
         this.#isMounted = false
+        this.#isBootstrapped = false
       }
 
       lifecycleMap.set(this, { mount, unmount, bootstrap })
-      await bootstrap()
-      await mount()
+
+      if (this.#attributes.autoMount) {
+        await bootstrap()
+        await mount()
+      }
     }
 
     async disconnectedCallback() {
@@ -188,26 +216,49 @@ export default function createMfe<T extends FrameworkApplication>(
   }
 
   return {
-    bootstrap: _createCustomElement,
-    mount: () => {
+    register: _createCustomElement,
+    bootstrap: async () => {
+      if (!options.name) {
+        logger.error('MFE name is missing.')
+        return
+      }
+
+      try {
+        _createCustomElement()
+        await _executeOnCustomElements(async (el) => {
+          await lifecycleMap.get(el)?.bootstrap()
+        })
+      } catch {
+        logger.debug(`No custom elements found for MFE ${options.name} to bootstrap`)
+      }
+    },
+    mount: async () => {
       if (!options.name) {
         logger.error('MFE name is missing.')
         return
       }
       // Mount all current instances that are not mounted yet
-      _executeOnCustomElements(async (el) => {
-        await lifecycleMap.get(el)?.mount()
-      })
+      try {
+        await _executeOnCustomElements(async (el) => {
+          await lifecycleMap.get(el)?.mount()
+        })
+      } catch {
+        logger.debug(`No custom elements found for MFE ${options.name} to mount`)
+      }
     },
-    unmount: () => {
+    unmount: async () => {
       if (!options.name) {
         logger.error('MFE name is missing.')
         return
       }
       // Unmount all current instances of this custom element on the page
-      _executeOnCustomElements(async (el) => {
-        await lifecycleMap.get(el)?.unmount()
-      })
+      try {
+        await _executeOnCustomElements(async (el) => {
+          await lifecycleMap.get(el)?.unmount()
+        })
+      } catch {
+        logger.debug(`No custom elements found for MFE ${options.name} to unmount`)
+      }
     },
   }
 }

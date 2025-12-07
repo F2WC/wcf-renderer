@@ -3,15 +3,20 @@ const mfeReactName = '@mf/react'
 const mfeVue = await import(/* @vite-ignore */ mfeVueName)
 const mfeReact = await import(/* @vite-ignore */ mfeReactName)
 
-mfeVue.bootstrap()
-mfeReact.bootstrap()
+mfeVue.register()
+mfeReact.register()
+
+await mfeVue.bootstrap()
+await mfeVue.mount()
 
 window.vue = {
-  unmount: mfeVue.unmount,
+  bootstrap: mfeVue.bootstrap,
   mount: mfeVue.mount,
+  unmount: mfeVue.unmount,
 }
 
 window.react = {
-  unmount: mfeReact.unmount,
+  bootstrap: mfeReact.bootstrap,
   mount: mfeReact.mount,
+  unmount: mfeReact.unmount,
 }

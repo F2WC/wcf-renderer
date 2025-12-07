@@ -27,6 +27,7 @@ const vueLifecycles = createMfe(
   },
 )
 
+export const { register } = vueLifecycles
 export const { bootstrap } = vueLifecycles
 export const { mount } = vueLifecycles
 export const { unmount } = vueLifecycles
