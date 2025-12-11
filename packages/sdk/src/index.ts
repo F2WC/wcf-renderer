@@ -1,7 +1,12 @@
 import { ConsoleWcfLogger } from '@/logger.js'
 import { createLifecycleOrchestrator } from '@/core/lifecycle-orchestrator.js'
 import { createMfeComponentClass } from '@/components/mfe-component.js'
-import type { AppFactory, ExternalLifecycleFunctions, LifecycleFunctions, Options } from '@/types/index.js'
+import type {
+  AppFactory,
+  ExternalLifecycleFunctions,
+  LifecycleFunctions,
+  Options,
+} from '@/types/index.js'
 
 // Re-export types for public API
 export type { MaybePromise } from '@/types/index.js'
@@ -37,7 +42,6 @@ export default function createMfe(
     )
     customElements.define(options.name, MfeComponent)
   }
-
 
   return createLifecycleOrchestrator(options, lifecycleMap, logger, registerCustomElement)
 }

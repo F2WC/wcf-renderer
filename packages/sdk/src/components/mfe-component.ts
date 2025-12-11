@@ -8,7 +8,7 @@ import type {
   Options,
 } from '@/types/index.js'
 import { getComponentProps } from '@/utils/props.js'
-import {noop, noopAsync} from "@/utils/noop.ts";
+import { noop, noopAsync } from '@/utils/noop.ts'
 
 /**
  * Creates a custom element class for the MFE.
@@ -91,7 +91,9 @@ export function createMfeComponentClass(
         }
         logger.debug(`Unmounting MFE ${options.name} with id ${this.#appInstance.id}.`)
         await this.#appInstance.unmount()
-        this.#loadedStyles.forEach((link) => { link.remove(); })
+        this.#loadedStyles.forEach((link) => {
+          link.remove()
+        })
         this.#loadedStyles = []
         this.removeChild(this.#rootContainer)
         this.#isMounted = false

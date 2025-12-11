@@ -8,8 +8,8 @@
 export function createStyleElement(cssUrl: string, id: string): HTMLLinkElement {
   const styleAlreadyExists = document.head.querySelector(
     `link[href="${cssUrl}"][rel="stylesheet"]`,
-  ) as HTMLLinkElement | undefined;
-  if (styleAlreadyExists) return styleAlreadyExists;
+  ) as HTMLLinkElement | undefined
+  if (styleAlreadyExists) return styleAlreadyExists
 
   const link = document.createElement('link')
   link.rel = 'stylesheet'
@@ -18,7 +18,7 @@ export function createStyleElement(cssUrl: string, id: string): HTMLLinkElement 
   link.setAttribute(`data-wcf-${id}`, '')
   document.head.appendChild(link)
 
-  return link;
+  return link
 }
 
 /**
@@ -31,8 +31,8 @@ export function createStyleElement(cssUrl: string, id: string): HTMLLinkElement 
 export function createPreloadLink(cssUrl: string, id: string): HTMLLinkElement {
   const preloadAlreadyExists = document.head.querySelector(
     `link[href="${cssUrl}"][rel="preload"]`,
-  ) as HTMLLinkElement | undefined;
-  if (preloadAlreadyExists) return preloadAlreadyExists;
+  ) as HTMLLinkElement | undefined
+  if (preloadAlreadyExists) return preloadAlreadyExists
 
   const link = document.createElement('link')
   link.rel = 'preload'
@@ -42,5 +42,5 @@ export function createPreloadLink(cssUrl: string, id: string): HTMLLinkElement {
   link.setAttribute(`data-wcf-${id}`, '')
   document.head.appendChild(link)
 
-  return link;
+  return link
 }
