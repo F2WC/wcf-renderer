@@ -8,6 +8,7 @@ import type {
   Options,
 } from '@/types/index.js'
 import { getComponentProps } from '@/utils/props.js'
+import {noop, noopAsync} from "@/utils/noop.ts";
 
 /**
  * Creates a custom element class for the MFE.
@@ -28,18 +29,10 @@ export function createMfeComponentClass(
   return class MfeComponent extends HTMLElement {
     #appInstance: AppInstance = {
       id: crypto.randomUUID(),
-      register: () => {
-        /* empty */
-      },
-      bootstrap: () => {
-        /* empty */
-      },
-      mount: () => {
-        /* empty */
-      },
-      unmount: () => {
-        /* empty */
-      },
+      register: noop,
+      bootstrap: noopAsync,
+      mount: noopAsync,
+      unmount: noopAsync,
     }
     #isBootstrapped = false
     #isMounted = false
