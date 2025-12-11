@@ -5,11 +5,11 @@
  * @param cssUrl The URL of the CSS file to load
  * @param id A unique identifier to tag the link element
  */
-export function createStyleElement(cssUrl: string, id: string): void {
+export function createStyleElement(cssUrl: string, id: string): HTMLLinkElement {
   const styleAlreadyExists = document.head.querySelector(
     `link[href="${cssUrl}"][rel="stylesheet"]`,
-  )
-  if (styleAlreadyExists) return
+  ) as HTMLLinkElement | undefined;
+  if (styleAlreadyExists) return styleAlreadyExists;
 
   const link = document.createElement('link')
   link.rel = 'stylesheet'
@@ -17,18 +17,8 @@ export function createStyleElement(cssUrl: string, id: string): void {
   link.crossOrigin = 'anonymous'
   link.setAttribute(`data-wcf-${id}`, '')
   document.head.appendChild(link)
-}
 
-/**
- * Removes all stylesheet link elements tagged with the given id.
- *
- * @param id The unique identifier used to tag stylesheet elements
- */
-export function deleteStyleElements(id: string): void {
-  const links = document.querySelectorAll(`link[data-wcf-${id}][rel="stylesheet"]`)
-  links.forEach((link) => {
-    link.remove()
-  })
+  return link;
 }
 
 /**
@@ -38,11 +28,11 @@ export function deleteStyleElements(id: string): void {
  * @param cssUrl The URL of the CSS file to preload
  * @param id A unique identifier to tag the link element
  */
-export function createPreloadLink(cssUrl: string, id: string): void {
+export function createPreloadLink(cssUrl: string, id: string): HTMLLinkElement {
   const preloadAlreadyExists = document.head.querySelector(
     `link[href="${cssUrl}"][rel="preload"]`,
-  )
-  if (preloadAlreadyExists) return
+  ) as HTMLLinkElement | undefined;
+  if (preloadAlreadyExists) return preloadAlreadyExists;
 
   const link = document.createElement('link')
   link.rel = 'preload'
@@ -51,4 +41,6 @@ export function createPreloadLink(cssUrl: string, id: string): void {
   link.crossOrigin = 'anonymous'
   link.setAttribute(`data-wcf-${id}`, '')
   document.head.appendChild(link)
+
+  return link;
 }

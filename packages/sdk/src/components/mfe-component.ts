@@ -1,5 +1,5 @@
 import type { ConsoleWcfLogger } from '@/logger.js'
-import { createPreloadLink, createStyleElement, deleteStyleElements } from '@/utils/dom.js'
+import { createPreloadLink, createStyleElement } from '@/utils/dom.js'
 import type {
   AppFactory,
   AppInstance,
@@ -45,6 +45,7 @@ export function createMfeComponentClass(
     #isMounted = false
     #rootContainer: HTMLElement = document.createElement('div')
     #attributes = this.dataset as ComponentAttributes
+    #loadedStyles: HTMLLinkElement[] = []
 
     async connectedCallback() {
       if (options.customRootContainer) {
@@ -81,8 +82,9 @@ export function createMfeComponentClass(
         logger.debug(`Mounting MFE ${options.name} with id ${this.#appInstance.id}`)
 
         options.cssURLs?.forEach((cssUrl) => {
-          createStyleElement(cssUrl, this.#appInstance.id)
+          const styleLink = createStyleElement(cssUrl, this.#appInstance.id)
           createPreloadLink(cssUrl, this.#appInstance.id)
+          this.#loadedStyles.push(styleLink)
         })
 
         await this.#appInstance.mount()
@@ -96,10 +98,8 @@ export function createMfeComponentClass(
         }
         logger.debug(`Unmounting MFE ${options.name} with id ${this.#appInstance.id}.`)
         await this.#appInstance.unmount()
-
-        options.cssURLs?.forEach(() => {
-          deleteStyleElements(this.#appInstance.id)
-        })
+        this.#loadedStyles.forEach((link) => { link.remove(); })
+        this.#loadedStyles = []
         this.removeChild(this.#rootContainer)
         this.#isMounted = false
         this.#isBootstrapped = false
