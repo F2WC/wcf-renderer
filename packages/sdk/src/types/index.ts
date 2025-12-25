@@ -94,3 +94,21 @@ export interface CreateMfeOptions {
  * instance of its application. It can receive props from the AppShell.
  */
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
+
+/**
+ * Represents a mapping of event names to their corresponding data types.
+ * This type definition is commonly used to define the structure of events and their associated payloads
+ * for strongly-typed event handling systems.
+ *
+ * Each key in the `EventMap` represents the name of an event as a string,
+ * and the associated value represents the type of data that the event carries.
+ */
+export type EventMap = Record<string, unknown>
+
+/**
+ * A type representing a listener function for handling custom events.
+ *
+ * @template E - The type of data carried by the custom event.
+ * @param {CustomEvent<E>} evt - The custom event object containing event details and payload.
+ */
+export type Listener<E> = (evt: CustomEvent<E>) => void

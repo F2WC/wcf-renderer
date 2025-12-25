@@ -9,6 +9,7 @@ import type {
 } from '@/types/index.js'
 import { getComponentProps } from '@/utils/props.js'
 import { noop, noopAsync } from '@/utils/noop.ts'
+import { eventBus, MFE_EVENTS } from '@/utils/events.ts'
 
 /**
  * Creates a custom element class for the MFE.
@@ -59,6 +60,7 @@ export function createMfeComponentClass(
         this.appendChild(this.#rootContainer)
         await this.#appInstance.bootstrap()
         this.#isBootstrapped = true
+        eventBus.emit(MFE_EVENTS.BOOTSTRAPPED, { id: this.#appInstance.id, name: options.name })
       }
 
       const mount = async () => {
@@ -82,6 +84,7 @@ export function createMfeComponentClass(
 
         await this.#appInstance.mount()
         this.#isMounted = true
+        eventBus.emit(MFE_EVENTS.MOUNTED, { id: this.#appInstance.id, name: options.name })
       }
 
       const unmount = async () => {
@@ -98,6 +101,7 @@ export function createMfeComponentClass(
         this.removeChild(this.#rootContainer)
         this.#isMounted = false
         this.#isBootstrapped = false
+        eventBus.emit(MFE_EVENTS.UNMOUNTED, { id: this.#appInstance.id, name: options.name })
       }
 
       lifecycleMap.set(this, { mount, unmount, bootstrap })
