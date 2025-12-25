@@ -1,7 +1,7 @@
 import type { ConsoleWcfLogger } from '@/logger.js'
 import type { ExternalLifecycleFunctions, LifecycleFunctions, Options } from '@/types/index.js'
 import type { MaybePromise } from '@/types/index.js'
-import {registerCustomElement} from "@/core/createCustomElement.ts";
+import { registerCustomElement } from '@/core/createCustomElement.ts'
 
 /**
  * Executes a callback on all custom elements matching the given tag name.
@@ -36,7 +36,7 @@ export function createLifecycleOrchestrator(
   options: Options,
   lifecycleMap: WeakMap<Element, Required<LifecycleFunctions>>,
   logger: ConsoleWcfLogger,
-  mfeComponent: typeof HTMLElement
+  mfeComponent: typeof HTMLElement,
 ): ExternalLifecycleFunctions {
   return {
     register: registerCustomElement(mfeComponent, options, logger),
