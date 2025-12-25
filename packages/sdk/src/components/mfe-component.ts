@@ -30,6 +30,7 @@ export function createMfeComponentClass(
   return class MfeComponent extends HTMLElement {
     #appInstance: AppInstance = {
       id: crypto.randomUUID(),
+      name: options.name,
       register: noop,
       bootstrap: noopAsync,
       mount: noopAsync,

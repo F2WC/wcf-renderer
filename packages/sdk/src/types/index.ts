@@ -37,6 +37,7 @@ export interface LifecycleFunctions {
  * Extends `LifecycleFunctions` but makes all lifecycle methods required and adds `register`.
  */
 export interface ExternalLifecycleFunctions extends Required<LifecycleFunctions> {
+  name: string
   register: () => void
 }
 
