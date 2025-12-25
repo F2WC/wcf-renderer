@@ -26,24 +26,8 @@ export default function createMfe(
   options: Options,
 ): ExternalLifecycleFunctions {
   const logger = new ConsoleWcfLogger()
-  // Track lifecycle functions per element instance so multiple components can mount independently
   const lifecycleMap = new WeakMap<Element, Required<LifecycleFunctions>>()
-
   const MfeComponent = createMfeComponentClass(appFactory, options, lifecycleMap, logger)
 
-  const registerCustomElement = () => {
-    if (customElements.get(options.name)) {
-      logger.debug(
-        `MFE custom element "${options.name}" already defined skipping custom element registration.`,
-      )
-      return
-    }
-    const cssList = options.cssURLs?.join(', ') ?? ''
-    logger.debug(
-      `Registering MFE with name "${options.name}"` + (cssList ? ` and CSS URLs: ${cssList}` : ''),
-    )
-    customElements.define(options.name, MfeComponent)
-  }
-
-  return createLifecycleOrchestrator(options, lifecycleMap, logger, registerCustomElement)
+  return createLifecycleOrchestrator(options, lifecycleMap, logger, MfeComponent)
 }

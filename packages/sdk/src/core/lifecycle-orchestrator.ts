@@ -1,6 +1,7 @@
 import type { ConsoleWcfLogger } from '@/logger.js'
 import type { ExternalLifecycleFunctions, LifecycleFunctions, Options } from '@/types/index.js'
 import type { MaybePromise } from '@/types/index.js'
+import { registerCustomElement } from '@/core/createCustomElement.ts'
 
 /**
  * Executes a callback on all custom elements matching the given tag name.
@@ -28,17 +29,17 @@ export async function executeOnCustomElements(
  * @param options The MFE options containing the custom element name
  * @param lifecycleMap A WeakMap tracking lifecycle functions per element instance
  * @param logger Logger instance for debug/error messages
- * @param registerFn Function to register the custom element
+ * @param mfeComponent The custom element class to register
  * @returns External lifecycle functions (bootstrap, mount, unmount, register)
  */
 export function createLifecycleOrchestrator(
   options: Options,
   lifecycleMap: WeakMap<Element, Required<LifecycleFunctions>>,
   logger: ConsoleWcfLogger,
-  registerFn: () => void,
+  mfeComponent: typeof HTMLElement,
 ): ExternalLifecycleFunctions {
   return {
-    register: registerFn,
+    register: registerCustomElement(mfeComponent, options, logger),
     bootstrap: async () => {
       if (!options.name) {
         logger.error('MFE name is missing.')
@@ -58,7 +59,7 @@ export function createLifecycleOrchestrator(
         logger.error('MFE name is missing.')
         return
       }
-      // Mount all current instances that are not mounted yet
+
       try {
         await executeOnCustomElements(options.name, async (el) => {
           await lifecycleMap.get(el)?.mount()
@@ -72,7 +73,7 @@ export function createLifecycleOrchestrator(
         logger.error('MFE name is missing.')
         return
       }
-      // Unmount all current instances of this custom element on the page
+
       try {
         await executeOnCustomElements(options.name, async (el) => {
           await lifecycleMap.get(el)?.unmount()
