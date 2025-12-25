@@ -7,9 +7,11 @@ import type {
   LifecycleFunctions,
   Options,
 } from '@/types/index.js'
+import { eventBus, MFE_EVENTS } from '@/utils/events.ts'
 
-// Re-export types for public API
+// Re-export types and EvenBus for public API
 export type { MaybePromise } from '@/types/index.js'
+export { eventBus, MFE_EVENTS }
 
 /**
  * Creates a class for a self-contained web component for a micro-frontend.
