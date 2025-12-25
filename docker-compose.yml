@@ -82,6 +82,22 @@ services:
       retries: 60
       start_period: 10s
 
+  shell:
+    image: node:24-alpine
+    working_dir: /app/packages/shell
+    command: sh -lc "npm ci && npm run dev"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/app
+      - shell_node_modules:/app/packages/sdk/node_modules
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/packages/shell/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 10s
+
   nginx:
     image: nginx:alpine3.22-slim
     volumes:
@@ -97,3 +113,4 @@ volumes:
   mfe_vue_node_modules:
   mfe_react_node_modules:
   sdk_node_modules:
+  shell_node_modules:
