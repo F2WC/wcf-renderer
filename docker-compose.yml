@@ -21,7 +21,6 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/app
-      - appshell_node_modules:/app/playground/shell/node_modules
     depends_on:
       mfe-vue-one:
         condition: service_healthy
@@ -36,7 +35,6 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/app
-      - mfe_vue_node_modules:/app/playground/mfe-vue-one/node_modules
     depends_on:
       sdk:
         condition: service_healthy
@@ -55,7 +53,6 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/app
-      - mfe_react_node_modules:/app/playground/mfe-react-one/node_modules
     depends_on:
       sdk:
         condition: service_healthy
@@ -74,7 +71,6 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/app
-      - sdk_node_modules:/app/packages/sdk/node_modules
     healthcheck:
       test: ['CMD-SHELL', 'test -f /app/packages/sdk/dist/index.js']
       interval: 5s
@@ -90,7 +86,6 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/app
-      - shell_node_modules:/app/packages/sdk/node_modules
     healthcheck:
       test: ['CMD-SHELL', 'test -f /app/packages/shell/dist/index.js']
       interval: 5s
@@ -107,10 +102,3 @@ services:
       - ./playground/shell/dist:/usr/share/nginx/html/shell
     ports:
       - '8080:8080'
-
-volumes:
-  appshell_node_modules:
-  mfe_vue_node_modules:
-  mfe_react_node_modules:
-  sdk_node_modules:
-  shell_node_modules:

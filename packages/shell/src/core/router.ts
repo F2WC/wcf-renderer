@@ -1,47 +1,76 @@
 import { match } from 'path-to-regexp'
-
-interface Route {
-    path: string;
-    name: string;
-    widgets?: string[];
-    beforeEnter?: () => void;
-    afterEnter?: () => void;
+import { ExternalLifecycleFunctions } from 'web-component-framework-renderer-sdk'
+export interface Route {
+  path: string
+  name: string
+  widgets?: string[]
+  beforeEnter?: () => void
+  afterEnter?: () => void
+  children?: Route[]
 }
 
-export default (routes: Route[], loadApp: ({name}: {name: string}) => Promise<any>) => {
-    routes.forEach(async route => {
-        if (!route.path) {
-            throw new Error('Route path is required')
+export type Routes = Route[]
+
+export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
+
+const handleMfe = async (mfe: string, loadApp: LoadApp) => {
+  const mfeComponent = await loadApp({ name: mfe })
+  mfeComponent.register()
+  const element = document.createElement(mfeComponent.name)
+  document.body.appendChild(element)
+  await mfeComponent.bootstrap()
+  await mfeComponent.mount()
+}
+
+const handleWidgets = async (widgets: string[], loadApp: LoadApp) => {
+  await Promise.all(
+    widgets.map(async (widget) => {
+      const widgetComponent = await loadApp({ name: widget })
+      widgetComponent.register()
+    }),
+  )
+}
+
+class NoMatchError extends Error {}
+
+const handleRoutes = async (routes: Routes, loadApp: LoadApp) => {
+  for (const route of routes) {
+    if (!route.path) {
+      throw new Error('Route path is required')
+    }
+
+    const matchFn = match(route.path)
+    const result = matchFn(window.location.pathname)
+
+    if (!result) throw new NoMatchError()
+
+    /*+
+        TODO: Children need to take the route of the parent into account and only when there is an exact match should they be executed.
+              If one route would match already but still has children, the children needs to be checked first if they would also match.
+              If they also match, the children should be executed and the rest of the code needs to be skipped.
+              If none of the children match, the parent needs to be executed if it matches, and this going up the tree until a match is found.
+              If no match at all is found, the router should throw an error.
+        if(route.children) {
+            try {
+                await handleRoutes(route.children, loadApp)
+            } catch (e) {
+                if (e instanceof NoMatchError) continue
+                return
+            }
         }
+    */
+    route.beforeEnter?.()
 
-        console.log(route.name)
-        console.log(route.path)
-        console.log(window.location.pathname)
+    await handleMfe(route.name, loadApp)
 
-        const matchFn = match(route.path)
-        const result = matchFn(window.location.pathname)
+    if (route.widgets) {
+      await handleWidgets(route.widgets, loadApp)
+    }
 
-        if(!result) return console.log(
-            'No match found for route', route.path, 'in', window.location.pathname
-        )
+    route.afterEnter?.()
+  }
+}
 
-        route.beforeEnter?.()
-
-        console.log(loadApp)
-
-        const mfeComponent = await loadApp({name: route.name})
-
-        mfeComponent.register()
-        const element = document.createElement(mfeComponent.name)
-        document.body.appendChild(element)
-        await mfeComponent.bootstrap()
-        await mfeComponent.mount()
-
-        route.widgets?.forEach(async widget => {
-            const widgetComponent = await loadApp({name: widget})
-            widgetComponent.register()
-        })
-
-        console.log('Route matched:', route.name, 'for path', route.path)
-    })
+export default async (routes: Routes, loadApp: LoadApp) => {
+  await handleRoutes(routes, loadApp)
 }
