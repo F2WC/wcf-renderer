@@ -1,47 +1,87 @@
 import { match } from 'path-to-regexp'
-
-interface Route {
-    path: string;
-    name: string;
-    widgets?: string[];
-    beforeEnter?: () => void;
-    afterEnter?: () => void;
+import { ExternalLifecycleFunctions } from 'web-component-framework-renderer-sdk'
+export interface Route {
+  path: string
+  name: string
+  widgets?: string[]
+  beforeEnter?: () => void
+  afterEnter?: () => void
+  children?: Route[]
 }
 
-export default (routes: Route[], loadApp: ({name}: {name: string}) => Promise<any>) => {
-    routes.forEach(async route => {
-        if (!route.path) {
-            throw new Error('Route path is required')
-        }
+export type Routes = Route[]
 
-        console.log(route.name)
-        console.log(route.path)
-        console.log(window.location.pathname)
+export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
 
-        const matchFn = match(route.path)
-        const result = matchFn(window.location.pathname)
+const handleMfe = async (mfe: string, loadApp: LoadApp) => {
+  const mfeComponent = await loadApp({ name: mfe })
+  mfeComponent.register()
+  const element = document.createElement(mfeComponent.name)
+  document.body.appendChild(element)
+  await mfeComponent.bootstrap()
+  await mfeComponent.mount()
+}
 
-        if(!result) return console.log(
-            'No match found for route', route.path, 'in', window.location.pathname
-        )
+const handleWidgets = async (widgets: string[], loadApp: LoadApp) => {
+  await Promise.all(
+    widgets.map(async (widget) => {
+      const widgetComponent = await loadApp({ name: widget })
+      widgetComponent.register()
+    }),
+  )
+}
 
-        route.beforeEnter?.()
+class NoMatchError extends Error {}
 
-        console.log(loadApp)
+const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => {
+  for (const route of routes) {
+    if (!route.path) {
+      throw new Error('Route path is required')
+    }
 
-        const mfeComponent = await loadApp({name: route.name})
+    const fullPath = `${basePath}${route.path}`.replace(/\/+/g, '/')
+    const matchFn = match(fullPath, { end: !route.children })
+    const result = matchFn(window.location.pathname)
 
-        mfeComponent.register()
-        const element = document.createElement(mfeComponent.name)
-        document.body.appendChild(element)
-        await mfeComponent.bootstrap()
-        await mfeComponent.mount()
+    if (!result) continue
 
-        route.widgets?.forEach(async widget => {
-            const widgetComponent = await loadApp({name: widget})
-            widgetComponent.register()
-        })
+    if (route.children) {
+      try {
+        await handleRoutes(route.children, loadApp, fullPath)
+        return
+      } catch (e) {
+        if (!(e instanceof NoMatchError)) throw e
+      }
+    }
 
-        console.log('Route matched:', route.name, 'for path', route.path)
-    })
+    // If it's an exact match or children didn't match but this route matches (and we are here)
+    const exactMatchFn = match(fullPath, { end: true })
+    if (!exactMatchFn(window.location.pathname)) {
+      continue
+    }
+
+    route.beforeEnter?.()
+
+    await handleMfe(route.name, loadApp)
+
+    if (route.widgets) {
+      await handleWidgets(route.widgets, loadApp)
+    }
+
+    route.afterEnter?.()
+    return
+  }
+
+  throw new NoMatchError()
+}
+
+export default async (routes: Routes, loadApp: LoadApp) => {
+  try {
+    await handleRoutes(routes, loadApp)
+  } catch (e) {
+    if (e instanceof NoMatchError) {
+      throw new Error('No route matched')
+    }
+    throw e
+  }
 }
