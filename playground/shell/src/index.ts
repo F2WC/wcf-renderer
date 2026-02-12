@@ -4,7 +4,6 @@ const routes: Routes = [
   {
     path: '/{*path}',
     name: '@mf/vue',
-    widgets: ['@mf/react'],
     beforeEnter: () => {
       console.log('Entering Vue route');
     },

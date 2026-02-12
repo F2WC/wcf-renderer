@@ -97,6 +97,11 @@ export interface CreateMfeOptions {
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
 
 /**
+ * A function that loads an MFE or widget by name and returns its lifecycle functions.
+ */
+export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
+
+/**
  * Represents a mapping of event names to their corresponding data types.
  * This type definition is commonly used to define the structure of events and their associated payloads
  * for strongly-typed event handling systems.

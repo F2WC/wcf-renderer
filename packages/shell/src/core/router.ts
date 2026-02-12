@@ -1,5 +1,5 @@
 import { match } from 'path-to-regexp'
-import { ExternalLifecycleFunctions } from 'web-component-framework-renderer-sdk'
+import { LoadApp, setLoader } from 'web-component-framework-renderer-sdk'
 export interface Route {
   path: string
   name: string
@@ -11,8 +11,6 @@ export interface Route {
 
 export type Routes = Route[]
 
-export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
-
 const handleMfe = async (mfe: string, loadApp: LoadApp) => {
   const mfeComponent = await loadApp({ name: mfe })
   mfeComponent.register()
@@ -20,15 +18,6 @@ const handleMfe = async (mfe: string, loadApp: LoadApp) => {
   document.body.appendChild(element)
   await mfeComponent.bootstrap()
   await mfeComponent.mount()
-}
-
-const handleWidgets = async (widgets: string[], loadApp: LoadApp) => {
-  await Promise.all(
-    widgets.map(async (widget) => {
-      const widgetComponent = await loadApp({ name: widget })
-      widgetComponent.register()
-    }),
-  )
 }
 
 class NoMatchError extends Error {}
@@ -64,10 +53,6 @@ const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => 
 
     await handleMfe(route.name, loadApp)
 
-    if (route.widgets) {
-      await handleWidgets(route.widgets, loadApp)
-    }
-
     route.afterEnter?.()
     return
   }
@@ -76,6 +61,7 @@ const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => 
 }
 
 export default async (routes: Routes, loadApp: LoadApp) => {
+  setLoader(loadApp)
   try {
     await handleRoutes(routes, loadApp)
   } catch (e) {
