@@ -9,6 +9,10 @@ export default defineConfig({
       '~': fileURLToPath(new URL('../', import.meta.url)),
     },
   },
+  server: {
+    port: 5173,
+    strictPort: true,
+  },
   build: {
     rollupOptions: {
       external: ['@mf/vue', '@mf/react'],

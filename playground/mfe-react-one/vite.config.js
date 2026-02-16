@@ -8,6 +8,11 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
   },
   plugins: [react()],
+  server: {
+    cors: true,
+    port: 5175,
+    strictPort: true,
+  },
   build: {
     lib: {
       formats: ['es'],

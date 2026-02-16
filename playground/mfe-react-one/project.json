@@ -1,0 +1,23 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "mfe-react-one",
+  "projectType": "application",
+  "root": "playground/mfe-react-one",
+  "sourceRoot": "playground/mfe-react-one/src",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["sdk"],
+          "target": "dev"
+        }
+      ],
+      "options": {
+        "cwd": "playground/mfe-react-one",
+        "command": "npm run build -- --watch"
+      }
+    }
+  }
+}

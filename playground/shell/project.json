@@ -1,0 +1,31 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "shell-app",
+  "projectType": "application",
+  "root": "playground/shell",
+  "sourceRoot": "playground/shell/src",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["shell-package"],
+          "target": "dev"
+        }
+      ],
+      "options": {
+        "cwd": "playground/shell",
+        "command": "npm run dev -- --strictPort --port 5173"
+      }
+    },
+    "server": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "cwd": "playground/shell",
+        "command": "npm run preview -- --outDir ../"
+      }
+    }
+  }
+}
