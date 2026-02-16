@@ -47,7 +47,7 @@ tilt up
 
 - App Shell dev server: http://localhost:5173
 - Tilt dashboard: http://localhost:10350
-- The first startup may take a while. The shell waits until both MFEs have produced their first build before starting Vite.
+- MFE assets are served via nginx at http://localhost:8080 (`/vue/*` and `/react/*`) for stable importmap URLs.
 - Stop with `tilt down`.
 
 Fallback (without Tilt):
@@ -61,8 +61,9 @@ docker compose up --build
 The recommended way to develop is via Tilt orchestrating Docker Compose. The repository is mounted into the containers, and each service runs in watch mode:
 
 - `packages/sdk` builds in watch mode
+- `packages/shell` builds in watch mode
 - `playground/mfe-vue-one` and `playground/mfe-react-one` build in watch mode
-- `playground/shell` (Vite) reloads when MFEs output to `dist/`
+- `playground/shell` runs Vite dev server with auto-reload
 
 Typical flow:
 
@@ -73,7 +74,8 @@ Tips:
 
 - Open the Tilt dashboard for logs and resource status: http://localhost:10350
 - Stop everything cleanly: `tilt down`
-- Fallback Docker commands still work: `docker compose logs -f app-shell`, `docker compose restart mfe-vue-one`, `docker compose down -v`
+- File watching in containers uses polling for reliable hot updates on bind mounts.
+- Fallback Docker commands still work: `docker compose logs -f app-shell`, `docker compose restart shell-package`, `docker compose down -v`
 
 ### Lint & Format
 

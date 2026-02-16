@@ -5,7 +5,7 @@ const routes: Routes = [
     path: '/{*path}',
     name: '@mf/vue',
     beforeEnter: () => {
-      console.log('Entering Vue routeasd');
+      console.log('Entering Vue route');
     },
     afterEnter: () => {
       console.log('After enter Vue route');
