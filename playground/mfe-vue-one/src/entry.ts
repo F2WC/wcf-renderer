@@ -5,6 +5,7 @@ import createMfe from 'web-component-framework-renderer-sdk'
 
 const customRootContainer = document.createElement('div')
 customRootContainer.id = 'app'
+const cssURL = import.meta.env.VITE_MFE_VUE_CSS_URL
 
 // Create the web component class using the SDK
 const vueLifecycles = createMfe(
@@ -22,8 +23,8 @@ const vueLifecycles = createMfe(
   },
   {
     name: 'mfe-vue-one',
-    cssURLs: ['http://localhost:8080/vue/index.css'],
-      customRootContainer
+    cssURLs: cssURL ? [cssURL] : undefined,
+    customRootContainer
   },
 )
 

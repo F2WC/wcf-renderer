@@ -1,0 +1,43 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "mfe-react-one",
+  "projectType": "application",
+  "root": "playground/mfe-react-one",
+  "sourceRoot": "playground/mfe-react-one/src",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["sdk"],
+          "target": "dev"
+        }
+      ],
+      "options": {
+        "cwd": "playground/mfe-react-one",
+        "command": "npm run dev -- --strictPort --port 5175"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        {
+          "projects": ["sdk"],
+          "target": "build"
+        }
+      ],
+      "options": {
+        "cwd": "playground/mfe-react-one",
+        "command": "npm run build"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "playground/mfe-react-one",
+        "command": "npm run lint"
+      }
+    }
+  }
+}

@@ -6,12 +6,10 @@ Run commands from the repository root unless noted.
 
 ### Setup and development
 
-- `npm run dev:tilt`  
-  Recommended local dev flow; Tilt orchestrates the Docker Compose services and provides the dashboard/logs.
-- `npm run dev:tilt:down`  
-  Stops the Tilt-managed local dev environment.
-- `npm run dev:docker`  
-  Fallback Docker-only workflow.
+- `npm install`  
+  Installs all workspace dependencies (`packages/*` and `playground/*`).
+- `npm run dev`  
+  Recommended local dev flow; Nx runs SDK/shell watchers and all Vite dev servers in parallel.
 
 ### Build
 
@@ -54,7 +52,7 @@ Current state: package `test` scripts are placeholders (`"Error: no test specifi
 - `playground/shell` wires runtime loading:
   - uses an import map (`@mf/vue`, `@mf/react`) in `playground/shell/index.html`;
   - calls `createRouter(routes, ({ name }) => import(name))`.
-- `playground/mfe-vue-one` and `playground/mfe-react-one` each export SDK lifecycle bindings from `src/entry.*` and are served by nginx from `/vue/index.js` and `/react/index.js`.
+- `playground/mfe-vue-one` and `playground/mfe-react-one` each export SDK lifecycle bindings from `src/entry.*`; the shell importmap points directly to their Vite dev entry URLs in local dev.
 
 ## Key repository conventions
 

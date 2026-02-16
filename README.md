@@ -28,9 +28,7 @@ by a lightweight App Shell. This enables incremental migration, mixed‑stack fe
 
 ### Prerequisites
 
-- Tilt CLI ([install guide](https://docs.tilt.dev/install.html))
-- Docker Desktop 4.x or newer (includes Docker Compose v2)
-- Node.js 20+ and npm 10+ (for local lint/build/tooling)
+- Node.js 20+ and npm 10+
 
 ### Clone
 
@@ -39,43 +37,41 @@ git clone <repository-url>
 cd web-component-framework-renderer
 ```
 
-### Run the stack (Tilt)
+### Install dependencies
 
 ```bash
-tilt up
+npm install
 ```
 
-- App Shell dev server: http://localhost:5173
-- Tilt dashboard: http://localhost:10350
-- MFE assets are served via nginx at http://localhost:8080 (`/vue/*` and `/react/*`) for stable importmap URLs.
-- Stop with `tilt down`.
-
-Fallback (without Tilt):
+### Run the local dev stack
 
 ```bash
-docker compose up --build
+npm run dev
 ```
+
+- App Shell: http://localhost:5173
+- Vue MFE module entry: http://localhost:5174/src/entry.ts
+- React MFE module entry: http://localhost:5175/src/entry.jsx
+- Stop with `Ctrl+C`.
 
 ### Develop
 
-The recommended way to develop is via Tilt orchestrating Docker Compose. The repository is mounted into the containers, and each service runs in watch mode:
+The recommended way to develop is local-only with Nx orchestration. One command starts all required watchers/servers:
 
 - `packages/sdk` builds in watch mode
 - `packages/shell` builds in watch mode
-- `playground/mfe-vue-one` and `playground/mfe-react-one` build in watch mode
+- `playground/mfe-vue-one` and `playground/mfe-react-one` run Vite dev servers
 - `playground/shell` runs Vite dev server with auto-reload
 
 Typical flow:
 
-1. Start the dev stack with `tilt up`.
-2. Edit code in your IDE; changes are picked up automatically by the running containers.
+1. Start with `npm run dev`.
+2. Edit code in your IDE; changes are picked up automatically.
 
 Tips:
 
-- Open the Tilt dashboard for logs and resource status: http://localhost:10350
-- Stop everything cleanly: `tilt down`
-- File watching in containers uses polling for reliable hot updates on bind mounts.
-- Fallback Docker commands still work: `docker compose logs -f app-shell`, `docker compose restart shell-package`, `docker compose down -v`
+- Keep all dev servers on fixed ports (`5173`, `5174`, `5175`).
+- Import maps are environment-driven in `playground/shell/.env`.
 
 ### Lint & Format
 
