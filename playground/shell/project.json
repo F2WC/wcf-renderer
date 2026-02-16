@@ -19,24 +19,12 @@
         "command": "npm run dev -- --strictPort --port 5173"
       }
     },
-    "build": {
+    "server": {
       "executor": "nx:run-commands",
-      "dependsOn": [
-        {
-          "projects": ["shell-package"],
-          "target": "build"
-        }
-      ],
+      "continuous": true,
       "options": {
         "cwd": "playground/shell",
-        "command": "npm run build"
-      }
-    },
-    "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "playground/shell",
-        "command": "npm run lint:script"
+        "command": "npm run preview -- --outDir ../"
       }
     }
   }

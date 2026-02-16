@@ -16,27 +16,7 @@
       ],
       "options": {
         "cwd": "playground/mfe-react-one",
-        "command": "npm run dev -- --strictPort --port 5175"
-      }
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "dependsOn": [
-        {
-          "projects": ["sdk"],
-          "target": "build"
-        }
-      ],
-      "options": {
-        "cwd": "playground/mfe-react-one",
-        "command": "npm run build"
-      }
-    },
-    "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "playground/mfe-react-one",
-        "command": "npm run lint"
+        "command": "npm run build -- --watch"
       }
     }
   }

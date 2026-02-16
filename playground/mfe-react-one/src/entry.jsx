@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import createMfe from 'web-component-framework-renderer-sdk'
 
-const cssURL = import.meta.env.VITE_MFE_REACT_CSS_URL
+const cssURL = 'http://localhost:4173/mfe-react-one/dist/index.css'
 
 const reactLifecycles = createMfe(
   ({ rootContainer, props }) => {

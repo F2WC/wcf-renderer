@@ -16,27 +16,7 @@
       ],
       "options": {
         "cwd": "playground/mfe-vue-one",
-        "command": "npm run dev -- --strictPort --port 5174"
-      }
-    },
-    "build": {
-      "executor": "nx:run-commands",
-      "dependsOn": [
-        {
-          "projects": ["sdk"],
-          "target": "build"
-        }
-      ],
-      "options": {
-        "cwd": "playground/mfe-vue-one",
-        "command": "npm run build"
-      }
-    },
-    "lint": {
-      "executor": "nx:run-commands",
-      "options": {
-        "cwd": "playground/mfe-vue-one",
-        "command": "npm run lint"
+        "command": "npm run build-only -- --watch"
       }
     }
   }
