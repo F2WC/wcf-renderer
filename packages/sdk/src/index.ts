@@ -1,6 +1,8 @@
 import { ConsoleWcfLogger } from '@/logger.js'
 import { createLifecycleOrchestrator } from '@/core/lifecycle-orchestrator.js'
 import { createMfeComponentClass } from '@/components/mfe-component.js'
+import { registerWidgetComponent } from '@/components/widget-component.js'
+import { setLoader } from '@/core/loader.js'
 import type {
   AppFactory,
   ExternalLifecycleFunctions,
@@ -9,9 +11,12 @@ import type {
 } from '@/types/index.js'
 import { eventBus, MFE_EVENTS } from '@/utils/events.ts'
 
+// Register core components
+registerWidgetComponent()
+
 // Re-export types and EvenBus for public API
-export type { MaybePromise } from '@/types/index.js'
-export { eventBus, MFE_EVENTS }
+export type { MaybePromise, ExternalLifecycleFunctions, LoadApp } from '@/types/index.js'
+export { eventBus, MFE_EVENTS, setLoader }
 
 /**
  * Creates a class for a self-contained web component for a micro-frontend.

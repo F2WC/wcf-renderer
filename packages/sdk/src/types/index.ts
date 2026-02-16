@@ -37,6 +37,7 @@ export interface LifecycleFunctions {
  * Extends `LifecycleFunctions` but makes all lifecycle methods required and adds `register`.
  */
 export interface ExternalLifecycleFunctions extends Required<LifecycleFunctions> {
+  name: string
   register: () => void
 }
 
@@ -94,6 +95,11 @@ export interface CreateMfeOptions {
  * instance of its application. It can receive props from the AppShell.
  */
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
+
+/**
+ * A function that loads an MFE or widget by name and returns its lifecycle functions.
+ */
+export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
 
 /**
  * Represents a mapping of event names to their corresponding data types.
