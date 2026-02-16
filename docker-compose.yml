@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   app-shell:
     image: node:24-alpine
@@ -21,8 +19,11 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/app
+      - shell_node_modules:/app/packages/shell/node_modules
       - appshell_node_modules:/app/playground/shell/node_modules
     depends_on:
+      shell:
+        condition: service_healthy
       mfe-vue-one:
         condition: service_healthy
       mfe-react-one:
@@ -69,11 +70,12 @@ services:
   sdk:
     image: node:24-alpine
     working_dir: /app/packages/sdk
-    command: sh -lc "npm ci && npm run dev"
+    command: sh -lc "npm install --workspaces=false && npm run dev"
     environment:
       - NODE_ENV=development
     volumes:
       - ./:/app
+      - sdk_root_node_modules:/app/node_modules
       - sdk_node_modules:/app/packages/sdk/node_modules
     healthcheck:
       test: ['CMD-SHELL', 'test -f /app/packages/sdk/dist/index.js']
@@ -85,12 +87,24 @@ services:
   shell:
     image: node:24-alpine
     working_dir: /app/packages/shell
-    command: sh -lc "npm ci && npm run dev"
+    command: >-
+      sh -lc "for i in $(seq 1 120); do \
+        [ -f ../sdk/dist/index.d.ts ] && break; \
+        echo 'Waiting for SDK DTS build...' && sleep 1; \
+      done; \
+      if [ ! -f ../sdk/dist/index.d.ts ]; then \
+        echo 'SDK DTS file not available within timeout' >&2; exit 1; \
+      fi; \
+      npm install --workspaces=false && npm run dev"
     environment:
       - NODE_ENV=development
     volumes:
       - ./:/app
+      - shell_root_node_modules:/app/node_modules
       - shell_node_modules:/app/packages/shell/node_modules
+    depends_on:
+      sdk:
+        condition: service_healthy
     healthcheck:
       test: ['CMD-SHELL', 'test -f /app/packages/shell/dist/index.js']
       interval: 5s
@@ -112,5 +126,7 @@ volumes:
   appshell_node_modules:
   mfe_vue_node_modules:
   mfe_react_node_modules:
+  sdk_root_node_modules:
   sdk_node_modules:
+  shell_root_node_modules:
   shell_node_modules:

@@ -15,7 +15,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "web-component-framework-renderer-shell": "file:../../packages/shell/dist"
+    "path-to-regexp": "^8.3.0",
+    "web-component-framework-renderer-sdk": "file:../../packages/sdk",
+    "web-component-framework-renderer-shell": "file:../../packages/shell"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",

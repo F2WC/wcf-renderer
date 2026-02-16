@@ -28,32 +28,37 @@ by a lightweight App Shell. This enables incremental migration, mixed‑stack fe
 
 ### Prerequisites
 
+- Tilt CLI ([install guide](https://docs.tilt.dev/install.html))
 - Docker Desktop 4.x or newer (includes Docker Compose v2)
-- Bash (for running the setup script)
-- Node.js 20+ and npm 10+ (only needed to run the local setup script; the app itself runs in Docker)
+- Node.js 20+ and npm 10+ (for local lint/build/tooling)
 
-### Clone & setup
+### Clone
 
 ```bash
 git clone <repository-url>
 cd web-component-framework-renderer
-# Install local dependencies so your editor/TypeScript tooling works
-npm run setup    # or: bash ./setup.sh
 ```
 
-### Run the stack (Docker)
+### Run the stack (Tilt)
+
+```bash
+tilt up
+```
+
+- App Shell dev server: http://localhost:5173
+- Tilt dashboard: http://localhost:10350
+- The first startup may take a while. The shell waits until both MFEs have produced their first build before starting Vite.
+- Stop with `tilt down`.
+
+Fallback (without Tilt):
 
 ```bash
 docker compose up --build
 ```
 
-- App Shell dev server: http://localhost:5173
-- The first startup may take a while. The shell waits until both MFEs have produced their first build before starting Vite.
-- Stop with Ctrl+C. To run in background, add `-d`.
-
 ### Develop
 
-The recommended way to develop is via Docker. The repository is mounted into the containers, and each service runs in watch mode:
+The recommended way to develop is via Tilt orchestrating Docker Compose. The repository is mounted into the containers, and each service runs in watch mode:
 
 - `packages/sdk` builds in watch mode
 - `playground/mfe-vue-one` and `playground/mfe-react-one` build in watch mode
@@ -61,15 +66,14 @@ The recommended way to develop is via Docker. The repository is mounted into the
 
 Typical flow:
 
-1. Run `npm run setup` once locally so node_modules are available for your editor and local tooling.
-2. Start the dev stack with `docker compose up --build`.
-3. Edit code in your IDE; changes are picked up automatically by the running containers.
+1. Start the dev stack with `tilt up`.
+2. Edit code in your IDE; changes are picked up automatically by the running containers.
 
 Tips:
 
-- View logs for a single service: `docker compose logs -f app-shell` (or any service)
-- Restart one service: `docker compose restart mfe-vue-one`
-- Clean dev volumes (node_modules inside containers): `docker compose down -v`
+- Open the Tilt dashboard for logs and resource status: http://localhost:10350
+- Stop everything cleanly: `tilt down`
+- Fallback Docker commands still work: `docker compose logs -f app-shell`, `docker compose restart mfe-vue-one`, `docker compose down -v`
 
 ### Lint & Format
 

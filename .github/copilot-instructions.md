@@ -6,10 +6,12 @@ Run commands from the repository root unless noted.
 
 ### Setup and development
 
-- `npm run setup`  
-  Installs dependencies in root and each `playground/*` app (via `setup.sh`).
-- `docker compose up --build`  
-  Recommended local dev flow; runs SDK/shell builds in watch mode and serves MFEs + shell.
+- `npm run dev:tilt`  
+  Recommended local dev flow; Tilt orchestrates the Docker Compose services and provides the dashboard/logs.
+- `npm run dev:tilt:down`  
+  Stops the Tilt-managed local dev environment.
+- `npm run dev:docker`  
+  Fallback Docker-only workflow.
 
 ### Build
 

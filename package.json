@@ -5,7 +5,10 @@
     "packages/*"
   ],
   "scripts": {
-    "setup": "bash ./setup.sh",
+    "dev:tilt": "tilt up",
+    "dev:tilt:down": "tilt down",
+    "dev:docker": "docker compose up --build",
+    "dev:docker:down": "docker compose down",
     "build": "lerna run build",
     "test": "lerna run test",
     "test:watch": "lerna run test:watch",
