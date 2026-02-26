@@ -22,14 +22,13 @@ const vueLifecycles = createMfe(
     }
   },
   {
-    name: 'mfe-vue-one',
+    name: '@mf/vue',
     cssURLs: cssURL ? [cssURL] : undefined,
     customRootContainer
   },
 )
 
 export const { name } = vueLifecycles
-export const { register } = vueLifecycles
 export const { bootstrap } = vueLifecycles
 export const { mount } = vueLifecycles
 export const { unmount } = vueLifecycles

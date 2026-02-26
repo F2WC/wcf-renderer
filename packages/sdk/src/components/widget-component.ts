@@ -1,17 +1,28 @@
 import { getLoader } from '@/core/loader.js'
 import { wcfLogger } from '@/logger.js'
+import { getComponentProps } from '@/utils/props.js'
+import type { ComponentAttributes, ExternalLifecycleFunctions } from '@/types/index.js'
 
 export class WidgetComponent extends HTMLElement {
   static get observedAttributes() {
     return ['data-widget-name']
   }
 
+  #lifecycle: ExternalLifecycleFunctions | undefined
+
   async connectedCallback() {
     await this.loadWidget()
   }
 
-  async attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (name === 'data-widget-name' && oldValue !== newValue) {
+  async disconnectedCallback() {
+    await this.#lifecycle?.unmount()
+    this.#lifecycle = undefined
+  }
+
+  async attributeChangedCallback(name: string, oldValue: string | null, newValue: string) {
+    if (name === 'data-widget-name' && oldValue !== null && oldValue !== newValue) {
+      await this.#lifecycle?.unmount()
+      this.#lifecycle = undefined
       await this.loadWidget()
     }
   }
@@ -31,19 +42,26 @@ export class WidgetComponent extends HTMLElement {
 
     try {
       const widgetLifecycle = await loader({ name: widgetName })
-      widgetLifecycle.register()
 
       // Clear previous content
       this.innerHTML = ''
 
-      const element = document.createElement(widgetLifecycle.name)
+      const rootContainer = document.createElement('div')
       // Pass through data attributes to the widget
       for (const attr of this.attributes) {
         if (attr.name.startsWith('data-') && attr.name !== 'data-widget-name') {
-          element.setAttribute(attr.name, attr.value)
+          rootContainer.setAttribute(attr.name, attr.value)
         }
       }
-      this.appendChild(element)
+      this.appendChild(rootContainer)
+
+      const attributes = this.dataset as ComponentAttributes
+      const props = getComponentProps(attributes, wcfLogger, widgetName)
+
+      await widgetLifecycle.bootstrap(rootContainer, props)
+      await widgetLifecycle.mount()
+
+      this.#lifecycle = widgetLifecycle
     } catch (error) {
       wcfLogger.error(`Failed to load widget "${widgetName}": ${String(error)}`)
     }

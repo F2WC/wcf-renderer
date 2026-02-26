@@ -1,120 +1,69 @@
-import type { ConsoleWcfLogger } from '@/logger.js'
-import { createPreloadLink, createStyleElement } from '@/utils/dom.js'
-import type {
-  AppFactory,
-  AppInstance,
-  ComponentAttributes,
-  LifecycleFunctions,
-  Options,
-} from '@/types/index.js'
+import { getLoader } from '@/core/loader.js'
+import { wcfLogger } from '@/logger.js'
 import { getComponentProps } from '@/utils/props.js'
-import { noop, noopAsync } from '@/utils/noop.ts'
-import { eventBus, MFE_EVENTS } from '@/utils/events.ts'
+import type { ComponentAttributes, ExternalLifecycleFunctions } from '@/types/index.js'
 
-/**
- * Creates a custom element class for the MFE.
- * This class manages the lifecycle of individual MFE instances in the DOM.
- *
- * @param appFactory The factory function that creates MFE instances
- * @param options MFE configuration options
- * @param lifecycleMap WeakMap to store lifecycle functions per element
- * @param logger Logger instance for debug messages
- * @returns A custom HTMLElement class
- */
-export function createMfeComponentClass(
-  appFactory: AppFactory,
-  options: Options,
-  lifecycleMap: WeakMap<Element, Required<LifecycleFunctions>>,
-  logger: ConsoleWcfLogger,
-): typeof HTMLElement {
-  return class MfeComponent extends HTMLElement {
-    #appInstance: AppInstance = {
-      id: crypto.randomUUID(),
-      name: options.name,
-      register: noop,
-      bootstrap: noopAsync,
-      mount: noopAsync,
-      unmount: noopAsync,
+export class MfeComponent extends HTMLElement {
+  static get observedAttributes() {
+    return ['data-mfe-name']
+  }
+
+  #lifecycle: ExternalLifecycleFunctions | undefined
+
+  async connectedCallback() {
+    await this.loadMfe()
+  }
+
+  async disconnectedCallback() {
+    await this.#lifecycle?.unmount()
+    this.#lifecycle = undefined
+  }
+
+  async attributeChangedCallback(name: string, oldValue: string | null, newValue: string) {
+    if (name === 'data-mfe-name' && oldValue !== null && oldValue !== newValue) {
+      await this.#lifecycle?.unmount()
+      this.#lifecycle = undefined
+      await this.loadMfe()
     }
-    #isBootstrapped = false
-    #isMounted = false
-    #rootContainer: HTMLElement = document.createElement('div')
-    #attributes = this.dataset as ComponentAttributes
-    #loadedStyles: HTMLLinkElement[] = []
+  }
 
-    async connectedCallback() {
-      if (options.customRootContainer) {
-        this.#rootContainer = options.customRootContainer.cloneNode() as HTMLElement
-      }
-
-      const bootstrap = async () => {
-        logger.debug(`Bootstrapping MFE ${options.name} with id ${this.#appInstance.id}`)
-
-        this.#appInstance = {
-          ...this.#appInstance,
-          ...appFactory({
-            rootContainer: this.#rootContainer,
-            props: getComponentProps(this.#attributes, logger, options.name),
-          }),
-        }
-
-        this.appendChild(this.#rootContainer)
-        await this.#appInstance.bootstrap()
-        this.#isBootstrapped = true
-        eventBus.emit(MFE_EVENTS.BOOTSTRAPPED, { id: this.#appInstance.id, name: options.name })
-      }
-
-      const mount = async () => {
-        if (!this.#isBootstrapped) {
-          logger.debug(
-            `MFE ${options.name} with id ${this.#appInstance.id} is not bootstrapped yet.`,
-          )
-          return
-        }
-        if (this.#isMounted) {
-          logger.debug(`MFE ${options.name} with id ${this.#appInstance.id} is already mounted.`)
-          return
-        }
-        logger.debug(`Mounting MFE ${options.name} with id ${this.#appInstance.id}`)
-
-        options.cssURLs?.forEach((cssUrl) => {
-          const styleLink = createStyleElement(cssUrl, this.#appInstance.id)
-          createPreloadLink(cssUrl, this.#appInstance.id)
-          this.#loadedStyles.push(styleLink)
-        })
-
-        await this.#appInstance.mount()
-        this.#isMounted = true
-        eventBus.emit(MFE_EVENTS.MOUNTED, { id: this.#appInstance.id, name: options.name })
-      }
-
-      const unmount = async () => {
-        if (!this.#isMounted) {
-          logger.debug(`MFE ${options.name} is not mounted.`)
-          return
-        }
-        logger.debug(`Unmounting MFE ${options.name} with id ${this.#appInstance.id}.`)
-        await this.#appInstance.unmount()
-        this.#loadedStyles.forEach((link) => {
-          link.remove()
-        })
-        this.#loadedStyles = []
-        this.removeChild(this.#rootContainer)
-        this.#isMounted = false
-        this.#isBootstrapped = false
-        eventBus.emit(MFE_EVENTS.UNMOUNTED, { id: this.#appInstance.id, name: options.name })
-      }
-
-      lifecycleMap.set(this, { mount, unmount, bootstrap })
-
-      if (this.#attributes.autoMount) {
-        await bootstrap()
-        await mount()
-      }
+  private async loadMfe() {
+    const mfeName = this.getAttribute('data-mfe-name')
+    if (!mfeName) {
+      wcfLogger.warn('MFE name is missing on wcf-mfe')
+      return
     }
 
-    async disconnectedCallback() {
-      await lifecycleMap.get(this)?.unmount()
+    const loader = getLoader()
+    if (!loader) {
+      wcfLogger.error('Loader not set. Call setLoader() before using wcf-mfe.')
+      return
     }
+
+    try {
+      const mfeLifecycle = await loader({ name: mfeName })
+
+      // Clear previous content
+      this.innerHTML = ''
+
+      const rootContainer = document.createElement('div')
+      this.appendChild(rootContainer)
+
+      const attributes = this.dataset as ComponentAttributes
+      const props = getComponentProps(attributes, wcfLogger, mfeName)
+
+      await mfeLifecycle.bootstrap(rootContainer, props)
+      await mfeLifecycle.mount()
+
+      this.#lifecycle = mfeLifecycle
+    } catch (error) {
+      wcfLogger.error(`Failed to load MFE "${mfeName}": ${String(error)}`)
+    }
+  }
+}
+
+export function registerMfeComponent() {
+  if (!customElements.get('wcf-mfe')) {
+    customElements.define('wcf-mfe', MfeComponent)
   }
 }

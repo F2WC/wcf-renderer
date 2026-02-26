@@ -33,20 +33,19 @@ export interface LifecycleFunctions {
 }
 
 /**
- * The public lifecycle API returned by `createMfe` for registration and orchestration.
- * Extends `LifecycleFunctions` but makes all lifecycle methods required and adds `register`.
+ * The public lifecycle API returned by `createMfe`.
+ *
+ * Sequence: `bootstrap(rootContainer, props)` → `mount()` → `unmount()`
+ *
+ * - `bootstrap` sets up the app instance and runs any pre-mount initialization.
+ * - `mount` renders the app into the container provided to `bootstrap`.
+ * - `unmount` tears down the app and cleans up resources.
  */
-export interface ExternalLifecycleFunctions extends Required<LifecycleFunctions> {
+export interface ExternalLifecycleFunctions {
   name: string
-  register: () => void
-}
-
-/**
- * Internal representation of a running MFE instance tracked by the SDK.
- * Includes the full external lifecycle API plus a unique `id`.
- */
-export interface AppInstance extends ExternalLifecycleFunctions {
-  id: string
+  bootstrap: (rootContainer: HTMLElement, props?: ComponentProps) => Promise<void>
+  mount: () => Promise<void>
+  unmount: () => Promise<void>
 }
 
 /**
@@ -68,10 +67,12 @@ export interface Options {
  *
  * @property props A JSON string of props to pass to the MFE on mount.
  * @property autoMount If present (any value), the component will automatically bootstrap and mount when connected.
+ * @property mfeName The name/identifier of the MFE to load dynamically (used by wcf-mfe).
  */
 export interface ComponentAttributes {
   props?: string
   autoMount?: string
+  mfeName?: string
 }
 
 /**

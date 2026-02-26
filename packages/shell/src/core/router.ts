@@ -12,12 +12,11 @@ export interface Route {
 export type Routes = Route[]
 
 const handleMfe = async (mfe: string, loadApp: LoadApp) => {
-  const mfeComponent = await loadApp({ name: mfe })
-  mfeComponent.register()
-  const element = document.createElement(mfeComponent.name)
+  const mfeLifecycle = await loadApp({ name: mfe })
+  const element = document.createElement('wcf-mfe')
+  element.setAttribute('data-mfe-name', mfeLifecycle.name)
   document.body.appendChild(element)
-  await mfeComponent.bootstrap()
-  await mfeComponent.mount()
+  // wcf-mfe connectedCallback calls mfeLifecycle.mount()
 }
 
 class NoMatchError extends Error {}
