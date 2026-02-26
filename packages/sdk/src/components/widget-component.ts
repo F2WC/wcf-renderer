@@ -10,9 +10,9 @@ export class WidgetComponent extends HTMLElement {
     await this.loadWidget()
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (name === 'data-widget-name' && oldValue !== newValue && oldValue !== null) {
-      this.loadWidget()
+  async attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if (name === 'data-widget-name' && oldValue !== newValue) {
+      await this.loadWidget()
     }
   }
 
@@ -32,10 +32,10 @@ export class WidgetComponent extends HTMLElement {
     try {
       const widgetLifecycle = await loader({ name: widgetName })
       widgetLifecycle.register()
-      
+
       // Clear previous content
       this.innerHTML = ''
-      
+
       const element = document.createElement(widgetLifecycle.name)
       // Pass through data attributes to the widget
       for (const attr of this.attributes) {

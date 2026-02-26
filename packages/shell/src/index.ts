@@ -1,4 +1,4 @@
-import createRouter, { Route, LoadApp, Routes } from './core/router.ts'
+import createRouter, { Route, Routes } from './core/router.ts'
 
 export default createRouter
-export { Route, Routes, LoadApp }
+export { Route, Routes }

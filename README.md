@@ -28,48 +28,50 @@ by a lightweight App Shell. This enables incremental migration, mixed‑stack fe
 
 ### Prerequisites
 
-- Docker Desktop 4.x or newer (includes Docker Compose v2)
-- Bash (for running the setup script)
-- Node.js 20+ and npm 10+ (only needed to run the local setup script; the app itself runs in Docker)
+- Node.js 20+ and npm 10+
 
-### Clone & setup
+### Clone
 
 ```bash
 git clone <repository-url>
 cd web-component-framework-renderer
-# Install local dependencies so your editor/TypeScript tooling works
-npm run setup    # or: bash ./setup.sh
 ```
 
-### Run the stack (Docker)
+### Install dependencies
 
 ```bash
-docker compose up --build
+npm install
 ```
 
-- App Shell dev server: http://localhost:5173
-- The first startup may take a while. The shell waits until both MFEs have produced their first build before starting Vite.
-- Stop with Ctrl+C. To run in background, add `-d`.
+### Run the local dev stack
+
+```bash
+npm run dev
+```
+
+- App Shell: http://localhost:5173
+- Vue MFE module entry: http://localhost:5174/src/entry.ts
+- React MFE module entry: http://localhost:5175/src/entry.jsx
+- Stop with `Ctrl+C`.
 
 ### Develop
 
-The recommended way to develop is via Docker. The repository is mounted into the containers, and each service runs in watch mode:
+The recommended way to develop is local-only with Nx orchestration. One command starts all required watchers/servers:
 
 - `packages/sdk` builds in watch mode
-- `playground/mfe-vue-one` and `playground/mfe-react-one` build in watch mode
-- `playground/shell` (Vite) reloads when MFEs output to `dist/`
+- `packages/shell` builds in watch mode
+- `playground/mfe-vue-one` and `playground/mfe-react-one` run Vite dev servers
+- `playground/shell` runs Vite dev server with auto-reload
 
 Typical flow:
 
-1. Run `npm run setup` once locally so node_modules are available for your editor and local tooling.
-2. Start the dev stack with `docker compose up --build`.
-3. Edit code in your IDE; changes are picked up automatically by the running containers.
+1. Start with `npm run dev`.
+2. Edit code in your IDE; changes are picked up automatically.
 
 Tips:
 
-- View logs for a single service: `docker compose logs -f app-shell` (or any service)
-- Restart one service: `docker compose restart mfe-vue-one`
-- Clean dev volumes (node_modules inside containers): `docker compose down -v`
+- Keep all dev servers on fixed ports (`5173`, `5174`, `5175`).
+- Import maps are environment-driven in `playground/shell/.env`.
 
 ### Lint & Format
 
