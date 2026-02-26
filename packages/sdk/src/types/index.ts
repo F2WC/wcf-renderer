@@ -53,12 +53,10 @@ export interface ExternalLifecycleFunctions {
  *
  * @property name The custom element tag name to register (e.g. `mfe-counter`).
  * @property cssURLs Optional list of CSS files to preload and attach while mounted.
- * @property customRootContainer Optional root element where the MFE should render; defaults to the root of the custom element.
  */
 export interface Options {
   name: string
   cssURLs?: string[]
-  customRootContainer?: HTMLElement
 }
 
 /**
