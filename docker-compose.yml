@@ -1,39 +1,51 @@
-version: '3.9'
-
 services:
-  app-shell:
+  sdk:
     image: node:24-alpine
-    working_dir: /app/playground/shell
-    # Wait until both MFEs produced their first build artifact, then start Vite dev server
-    command: >-
-      sh -lc "npm ci && \
-      for i in $(seq 1 120); do \
-        [ -f ../mfe-vue-one/dist/index.js ] && [ -f ../mfe-react-one/dist/index.js ] && break; \
-        echo 'Waiting for MFEs to build...' && sleep 1; \
-      done; \
-      if [ ! -f ../mfe-vue-one/dist/index.js ] || [ ! -f ../mfe-react-one/dist/index.js ]; then \
-        echo 'MFEs not built within timeout' >&2; exit 1; \
-      fi; \
-      npm run dev -- --host 0.0.0.0 --port 5173"
-    ports:
-      - '5173:5173'
+    working_dir: /app/packages/sdk
+    command: sh -lc "npm ci --workspaces=false && npm run dev"
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '200'
     volumes:
       - ./:/app
-      - appshell_node_modules:/app/playground/shell/node_modules
+      - sdk_node_modules:/app/packages/sdk/node_modules
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/packages/sdk/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 10s
+
+  shell-package:
+    image: node:24-alpine
+    working_dir: /app/packages/shell
+    command: sh -lc "npm ci --workspaces=false && npm run dev"
+    environment:
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '200'
+    volumes:
+      - ./:/app
+      - shell_package_node_modules:/app/packages/shell/node_modules
     depends_on:
-      mfe-vue-one:
+      sdk:
         condition: service_healthy
-      mfe-react-one:
-        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/packages/shell/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 10s
 
   mfe-vue-one:
     image: node:24-alpine
     working_dir: /app/playground/mfe-vue-one
-    command: sh -lc "mkdir -p ../../packages/sdk/dist && npm ci && npm run build-only -- --watch"
+    command: sh -lc "npm ci && npm run build-only -- --watch"
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '200'
     volumes:
       - ./:/app
       - mfe_vue_node_modules:/app/playground/mfe-vue-one/node_modules
@@ -50,9 +62,11 @@ services:
   mfe-react-one:
     image: node:24-alpine
     working_dir: /app/playground/mfe-react-one
-    command: sh -lc "mkdir -p ../../packages/sdk/dist && npm ci && npm run build -- --watch"
+    command: sh -lc "npm ci && npm run build -- --watch"
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '200'
     volumes:
       - ./:/app
       - mfe_react_node_modules:/app/playground/mfe-react-one/node_modules
@@ -66,51 +80,45 @@ services:
       retries: 60
       start_period: 20s
 
-  sdk:
+  app-shell:
     image: node:24-alpine
-    working_dir: /app/packages/sdk
-    command: sh -lc "npm ci && npm run dev"
+    working_dir: /app/playground/shell
+    command: sh -lc "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - '5173:5173'
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '200'
     volumes:
       - ./:/app
-      - sdk_node_modules:/app/packages/sdk/node_modules
-    healthcheck:
-      test: ['CMD-SHELL', 'test -f /app/packages/sdk/dist/index.js']
-      interval: 5s
-      timeout: 2s
-      retries: 60
-      start_period: 10s
-
-  shell:
-    image: node:24-alpine
-    working_dir: /app/packages/shell
-    command: sh -lc "npm ci && npm run dev"
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - ./:/app
-      - shell_node_modules:/app/packages/shell/node_modules
-    healthcheck:
-      test: ['CMD-SHELL', 'test -f /app/packages/shell/dist/index.js']
-      interval: 5s
-      timeout: 2s
-      retries: 60
-      start_period: 10s
+      - app_shell_node_modules:/app/playground/shell/node_modules
+    depends_on:
+      shell-package:
+        condition: service_healthy
+      mfe-vue-one:
+        condition: service_healthy
+      mfe-react-one:
+        condition: service_healthy
 
   nginx:
     image: nginx:alpine3.22-slim
+    ports:
+      - '8080:8080'
     volumes:
       - ./playground/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./playground/mfe-vue-one/dist:/usr/share/nginx/html/vue
       - ./playground/mfe-react-one/dist:/usr/share/nginx/html/react
       - ./playground/shell/dist:/usr/share/nginx/html/shell
-    ports:
-      - '8080:8080'
+    depends_on:
+      mfe-vue-one:
+        condition: service_healthy
+      mfe-react-one:
+        condition: service_healthy
 
 volumes:
-  appshell_node_modules:
+  sdk_node_modules:
+  shell_package_node_modules:
+  app_shell_node_modules:
   mfe_vue_node_modules:
   mfe_react_node_modules:
-  sdk_node_modules:
-  shell_node_modules:

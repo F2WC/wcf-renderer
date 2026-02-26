@@ -1,0 +1,43 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "shell-package",
+  "projectType": "library",
+  "root": "packages/shell",
+  "sourceRoot": "packages/shell/src",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["sdk"],
+          "target": "dev"
+        }
+      ],
+      "options": {
+        "cwd": "packages/shell",
+        "command": "npm run dev"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        {
+          "projects": ["sdk"],
+          "target": "build"
+        }
+      ],
+      "options": {
+        "cwd": "packages/shell",
+        "command": "npm run build"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/shell",
+        "command": "npm run test"
+      }
+    }
+  }
+}
