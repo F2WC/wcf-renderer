@@ -39,6 +39,7 @@ export function createLifecycleOrchestrator(
   mfeComponent: typeof HTMLElement,
 ): ExternalLifecycleFunctions {
   return {
+    name: options.name,
     register: registerCustomElement(mfeComponent, options, logger),
     bootstrap: async () => {
       if (!options.name) {

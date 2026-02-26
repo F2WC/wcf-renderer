@@ -1,22 +1,25 @@
-const mfeVueName = '@mf/vue'
-const mfeReactName = '@mf/react'
-const mfeVue = await import(/* @vite-ignore */ mfeVueName)
-const mfeReact = await import(/* @vite-ignore */ mfeReactName)
+import createRouter, { type Routes } from 'web-component-framework-renderer-shell'
 
-mfeVue.register()
-mfeReact.register()
+const routes: Routes = [
+  {
+    path: '/{*path}',
+    name: '@mf/vue',
+    beforeEnter: () => {
+      console.log('Entering Vue route');
+    },
+    afterEnter: () => {
+      console.log('After enter Vue route');
+    },
+    children: [
+      {
+        path: '/react',
+        name: '@mf/react',
+      }
+    ]
+  },
+]
 
-await mfeVue.bootstrap()
-await mfeVue.mount()
+await createRouter(routes, ({ name }) => {
+  return import(/* @vite-ignore */ name);
+})
 
-window.vue = {
-  bootstrap: mfeVue.bootstrap,
-  mount: mfeVue.mount,
-  unmount: mfeVue.unmount,
-}
-
-window.react = {
-  bootstrap: mfeReact.bootstrap,
-  mount: mfeReact.mount,
-  unmount: mfeReact.unmount,
-}
