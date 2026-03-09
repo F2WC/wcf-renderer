@@ -5,7 +5,7 @@ import createMfe from 'web-component-framework-renderer-sdk'
 
 const cssURL = 'http://localhost:4173/mfe-react-one/dist/index.css'
 
-const reactLifecycles = createMfe(
+export default createMfe(
   ({ rootContainer, props }) => {
     const root = createRoot(rootContainer)
     return {
@@ -26,10 +26,3 @@ const reactLifecycles = createMfe(
     cssURLs: cssURL ? [cssURL] : undefined,
   },
 )
-
-
-export const { name } = reactLifecycles
-export const { register } = reactLifecycles
-export const { bootstrap } = reactLifecycles
-export const { mount } = reactLifecycles
-export const { unmount } = reactLifecycles

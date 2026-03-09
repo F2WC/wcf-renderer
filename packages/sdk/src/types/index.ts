@@ -94,6 +94,13 @@ export interface CreateMfeOptions {
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
 
 /**
+ * The default export of an MFE module. Each call returns a fresh, isolated
+ * lifecycle instance — enabling multiple elements to load the same MFE
+ * independently despite JS module caching.
+ */
+export type MfeFactory = () => ExternalLifecycleFunctions
+
+/**
  * Represents a mapping of event names to their corresponding data types.
  * This type definition is commonly used to define the structure of events and their associated payloads
  * for strongly-typed event handling systems.

@@ -1,6 +1,6 @@
 import { wcfLogger } from '@/logger.js'
 import { getComponentProps } from '@/utils/props.js'
-import type { ComponentAttributes, ExternalLifecycleFunctions } from '@/types/index.js'
+import type { ComponentAttributes, ExternalLifecycleFunctions, MfeFactory } from '@/types/index.js'
 
 export class WidgetComponent extends HTMLElement {
   static get observedAttributes() {
@@ -34,7 +34,8 @@ export class WidgetComponent extends HTMLElement {
     }
 
     try {
-      const widgetLifecycle = (await import(/* @vite-ignore */ widgetName)) as ExternalLifecycleFunctions
+      const module = (await import(/* @vite-ignore */ widgetName)) as { default: MfeFactory }
+      const widgetLifecycle = module.default()
 
       // Clear previous content
       this.innerHTML = ''
