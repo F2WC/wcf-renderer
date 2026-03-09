@@ -1,4 +1,3 @@
-import { getLoader } from '@/core/loader.js'
 import { wcfLogger } from '@/logger.js'
 import { getComponentProps } from '@/utils/props.js'
 import type { ComponentAttributes, ExternalLifecycleFunctions } from '@/types/index.js'
@@ -11,6 +10,7 @@ export class MfeComponent extends HTMLElement {
   #lifecycle: ExternalLifecycleFunctions | undefined
 
   async connectedCallback() {
+    console.log('connected')
     await this.loadMfe()
   }
 
@@ -34,15 +34,8 @@ export class MfeComponent extends HTMLElement {
       return
     }
 
-    const loader = getLoader()
-    if (!loader) {
-      wcfLogger.error('Loader not set. Call setLoader() before using wcf-mfe.')
-      return
-    }
-
     try {
-      const mfeLifecycle = await loader({ name: mfeName })
-
+      const mfeLifecycle = (await import(/* @vite-ignore */ mfeName)) as ExternalLifecycleFunctions
       // Clear previous content
       this.innerHTML = ''
 
@@ -63,6 +56,7 @@ export class MfeComponent extends HTMLElement {
 }
 
 export function registerMfeComponent() {
+  console.log('register')
   if (!customElements.get('wcf-mfe')) {
     customElements.define('wcf-mfe', MfeComponent)
   }

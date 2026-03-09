@@ -1,4 +1,5 @@
 import createRouter, { type Routes } from 'web-component-framework-renderer-shell'
+import 'web-component-framework-renderer-sdk'
 
 const routes: Routes = [
   {
@@ -19,7 +20,5 @@ const routes: Routes = [
   },
 ]
 
-await createRouter(routes, ({ name }) => {
-  return import(/* @vite-ignore */ name);
-})
+// await createRouter(routes)
 

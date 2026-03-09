@@ -64,12 +64,10 @@ export interface Options {
  * These are read from `HTMLElement.dataset` on the component instance.
  *
  * @property props A JSON string of props to pass to the MFE on mount.
- * @property autoMount If present (any value), the component will automatically bootstrap and mount when connected.
  * @property mfeName The name/identifier of the MFE to load dynamically (used by wcf-mfe).
  */
 export interface ComponentAttributes {
   props?: string
-  autoMount?: string
   mfeName?: string
 }
 
@@ -94,11 +92,6 @@ export interface CreateMfeOptions {
  * instance of its application. It can receive props from the AppShell.
  */
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
-
-/**
- * A function that loads an MFE or widget by name and returns its lifecycle functions.
- */
-export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
 
 /**
  * Represents a mapping of event names to their corresponding data types.

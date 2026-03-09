@@ -1,5 +1,5 @@
 import { match } from 'path-to-regexp'
-import { LoadApp, setLoader } from 'web-component-framework-renderer-sdk'
+
 export interface Route {
   path: string
   name: string
@@ -11,17 +11,15 @@ export interface Route {
 
 export type Routes = Route[]
 
-const handleMfe = async (mfe: string, loadApp: LoadApp) => {
-  const mfeLifecycle = await loadApp({ name: mfe })
+const handleMfe = (mfe: string) => {
   const element = document.createElement('wcf-mfe')
-  element.setAttribute('data-mfe-name', mfeLifecycle.name)
+  element.setAttribute('data-mfe-name', mfe)
   document.body.appendChild(element)
-  // wcf-mfe connectedCallback calls mfeLifecycle.mount()
 }
 
 class NoMatchError extends Error {}
 
-const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => {
+const handleRoutes = async (routes: Routes, basePath = '') => {
   for (const route of routes) {
     if (!route.path) {
       throw new Error('Route path is required')
@@ -35,7 +33,7 @@ const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => 
 
     if (route.children) {
       try {
-        await handleRoutes(route.children, loadApp, fullPath)
+        await handleRoutes(route.children, fullPath)
         return
       } catch (e) {
         if (!(e instanceof NoMatchError)) throw e
@@ -50,7 +48,7 @@ const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => 
 
     route.beforeEnter?.()
 
-    await handleMfe(route.name, loadApp)
+    handleMfe(route.name)
 
     route.afterEnter?.()
     return
@@ -59,10 +57,9 @@ const handleRoutes = async (routes: Routes, loadApp: LoadApp, basePath = '') => 
   throw new NoMatchError()
 }
 
-export default async (routes: Routes, loadApp: LoadApp) => {
-  setLoader(loadApp)
+export default async (routes: Routes) => {
   try {
-    await handleRoutes(routes, loadApp)
+    await handleRoutes(routes)
   } catch (e) {
     if (e instanceof NoMatchError) {
       throw new Error('No route matched')

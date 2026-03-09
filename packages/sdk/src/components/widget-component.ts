@@ -1,4 +1,3 @@
-import { getLoader } from '@/core/loader.js'
 import { wcfLogger } from '@/logger.js'
 import { getComponentProps } from '@/utils/props.js'
 import type { ComponentAttributes, ExternalLifecycleFunctions } from '@/types/index.js'
@@ -34,14 +33,8 @@ export class WidgetComponent extends HTMLElement {
       return
     }
 
-    const loader = getLoader()
-    if (!loader) {
-      wcfLogger.error('Loader not set. Call setLoader() before using wcf-widget.')
-      return
-    }
-
     try {
-      const widgetLifecycle = await loader({ name: widgetName })
+      const widgetLifecycle = (await import(/* @vite-ignore */ widgetName)) as ExternalLifecycleFunctions
 
       // Clear previous content
       this.innerHTML = ''
