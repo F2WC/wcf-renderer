@@ -1,6 +1,5 @@
 import { ConsoleWcfLogger } from '@/logger.js'
-import { registerWidgetComponent } from '@/components/widget-component.js'
-import { registerMfeComponent } from '@/components/mfe-component.js'
+import { registerMfeComponent, registerWidgetComponent } from '@/components/wcf-component.js'
 import { createStyleElement, createPreloadLink } from '@/utils/dom.js'
 import type {
   AppFactory,
