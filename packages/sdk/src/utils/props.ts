@@ -1,25 +1,26 @@
-import type { ConsoleWcfLogger } from '@/logger.js'
-import type { ComponentAttributes, ComponentProps } from '@/types/index.js'
+import type { ComponentProps } from '@/types/index.js'
 
 /**
- * Parses component props from the dataset attributes.
- * Returns undefined if no props are provided or if parsing fails.
+ * Reads component props from `data-prop-*` attributes on the element.
+ * Attribute names are converted from kebab-case to camelCase.
+ * Returns undefined if no matching attributes are found.
  *
- * @param dataset The component's dataset containing the props attribute
- * @param logger Logger instance for warnings
- * @param mfeName The name of the MFE (for logging purposes)
+ * @param element The custom element to read attributes from
  * @returns Parsed component props or undefined
  */
-export function getComponentProps(
-  dataset: ComponentAttributes,
-  logger: ConsoleWcfLogger,
-  mfeName: string,
-): ComponentProps | undefined {
-  if (dataset.props) {
-    try {
-      return JSON.parse(dataset.props) as ComponentProps
-    } catch (e) {
-      logger.warn(`Failed to parse props for MFE ${mfeName}: ${String(e)}`)
+export function getComponentProps(element: HTMLElement): ComponentProps | undefined {
+  const props: ComponentProps = {}
+  let found = false
+
+  for (const attr of element.attributes) {
+    if (attr.name.startsWith('data-prop-')) {
+      const key = attr.name
+        .slice('data-prop-'.length)
+        .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+      props[key] = attr.value
+      found = true
     }
   }
+
+  return found ? props : undefined
 }
