@@ -1,6 +1,6 @@
 import { wcfLogger } from '@/logger.js'
 import { getComponentProps } from '@/utils/props.js'
-import type { ComponentAttributes, ExternalLifecycleFunctions, MfeFactory } from '@/types/index.js'
+import type { ExternalLifecycleFunctions, MfeFactory } from '@/types/index.js'
 
 function createWcfComponentClass(attributeName: string) {
   return class WcfComponent extends HTMLElement {
@@ -9,12 +9,29 @@ function createWcfComponentClass(attributeName: string) {
     }
 
     #lifecycle: ExternalLifecycleFunctions | undefined
+    #observer: MutationObserver | undefined
 
     async connectedCallback() {
+      this.#observer = new MutationObserver((mutations) => {
+        const propChanged = mutations.some((m) => m.attributeName?.startsWith('data-prop-'))
+        if (!propChanged) return
+        const props = getComponentProps(this) ?? {}
+
+        if (this.#lifecycle?.update) {
+          void this.#lifecycle.update(props)
+        } else {
+          wcfLogger.debug(
+            'You need to implement update method in lifecycle to dynamically update props',
+          )
+        }
+      })
+      this.#observer.observe(this, { attributes: true })
       await this.#load()
     }
 
     async disconnectedCallback() {
+      this.#observer?.disconnect()
+      this.#observer = undefined
       await this.#lifecycle?.unmount()
       this.#lifecycle = undefined
     }
@@ -49,7 +66,7 @@ function createWcfComponentClass(attributeName: string) {
 
         this.appendChild(rootContainer)
 
-        const props = getComponentProps(this.dataset as ComponentAttributes, wcfLogger, moduleName)
+        const props = getComponentProps(this)
         await lifecycle.bootstrap(rootContainer, props)
         await lifecycle.mount()
 

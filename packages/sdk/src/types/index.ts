@@ -30,6 +30,7 @@ export interface LifecycleFunctions {
   bootstrap?: () => MaybePromise<void>
   mount: () => MaybePromise<void>
   unmount: () => MaybePromise<void>
+  update?: (newProps: ComponentProps) => MaybePromise<void>
 }
 
 /**
@@ -46,6 +47,7 @@ export interface ExternalLifecycleFunctions {
   bootstrap: (rootContainer: HTMLElement, props?: ComponentProps) => Promise<void>
   mount: () => Promise<void>
   unmount: () => Promise<void>
+  update?: (newProps: ComponentProps) => Promise<void>
 }
 
 /**
@@ -63,11 +65,9 @@ export interface Options {
  * HTML attribute contract supported by the custom element.
  * These are read from `HTMLElement.dataset` on the component instance.
  *
- * @property props A JSON string of props to pass to the MFE on mount.
  * @property mfeName The name/identifier of the MFE to load dynamically (used by wcf-mfe).
  */
 export interface ComponentAttributes {
-  props?: string
   mfeName?: string
 }
 

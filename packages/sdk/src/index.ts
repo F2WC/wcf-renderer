@@ -94,6 +94,12 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         appLifecycle = undefined
         eventBus.emit(MFE_EVENTS.UNMOUNTED, { id, name: options.name })
       },
+
+      update: async (newProps: ComponentProps) => {
+        if (!isMounted || !appLifecycle?.update) return
+        logger.debug(`Passed new props for MFE ${options.name} with id ${id}`)
+        await appLifecycle.update(newProps)
+      },
     }
   }
 }

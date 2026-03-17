@@ -16,6 +16,9 @@ export default createMfe(
       unmount: () => {
         app.unmount()
       },
+      update: (newProps) => {
+        console.log(newProps)
+      },
     }
   },
   {
