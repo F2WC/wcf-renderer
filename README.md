@@ -86,23 +86,36 @@ npm run lint:script:fix
 ## Roadmap / TODO
 
 This is a living roadmap, nothing here is set in stone that it will come, but most likely there is still a lot of stuff
-missing in this list for example propper SSR support. First i want to focus on the MVP and continue from there.
-
-App Shell
-
-1. [ ] Create an App Shell package responsible for routing, orchestration.
-   1. [ ] Implement router, it should work similar to other Framework routers like Vue Router.
+missing in this list for example proper SSR support. First i want to focus on the MVP and continue from there.
 
 SDK
 
 1. [ ] Define a clear MFE contract: attributes/props schema, events, and lifecycle signatures; versioned and documented.
-2. [ ] Implement a type‑safe event bus with namespacing and wildcard listeners; generate TS types from the contract.
-3. [ ] Expose a vite plugin that generates a importmap for the project containing entry files for JS and CSS
-4. [x] Make lifecycle functions MaybePromise
-5. [x] Move CSS links to head and also add preload
-6. [x] Remove CSS when MFE unmounts
-7. [ ] Explore ways to better isolate CSS
-8. [ ] Split code from one single file into a proper structure
+2. [ ] Extend the type‑safe event bus with namespacing and wildcard listeners (the base implementation exists).
+3. [ ] Expose a Vite plugin that generates an import map for the project containing entry files for JS and CSS.
+4. [ ] Add an application registry API: `getMountedApps()`, `getAppStatus()`, `getAppNames()` for runtime introspection.
+5. [ ] Add structured lifecycle error handling: pluggable error handlers for bootstrap/mount/unmount failures.
+6. [ ] Add lifecycle timeouts: configurable max durations for bootstrap, mount, and unmount.
+7. [ ] Explore CSS isolation strategies (Shadow DOM, CSS layers, scoped selectors).
+8. [x] Make lifecycle functions MaybePromise
+9. [x] Move CSS links to head and also add preload
+10. [x] Remove CSS when MFE unmounts
+
+Shell / Router
+
+1. [ ] Build out the programmatic router API (similar to Vue Router's `createRouter()`): typed route definitions with nested routes, guards (`beforeEnter`/`afterEnter`), named routes, and lazy‑loaded MFE resolvers — usable standalone without any HTML layout.
+2. [ ] Add a navigation helper: `navigateToUrl()` for programmatic cross‑MFE navigation.
+3. [ ] Add loading state support: show a placeholder while an MFE module is being fetched.
+4. [ ] Add 404/fallback route handling: a dedicated "not found" route or default fallback.
+5. [ ] Add `import-map-overrides` integration or equivalent dev override mechanism (run one MFE locally while using deployed versions of others).
+
+Layout Engine
+
+The layout engine is a higher‑level companion to the programmatic router. It parses a declarative HTML template and converts it into a router configuration, then hands it off to the programmatic router to drive navigation and mounting.
+
+1. [ ] Implement HTML template parsing: read `<wcf-router>` and `<wcf-route path="...">` elements, extract `<wcf-mfe>` children per route, and produce a typed route config compatible with the programmatic router.
+2. [ ] Support inline loading, error, and 404 slots directly in the HTML template (e.g. `<template slot="loading">`, `<template slot="error">`).
+3. [ ] Mount the layout engine's generated router into a target container; the programmatic router then owns all navigation from that point on.
 
 Monorepo and Repository
 
@@ -122,4 +135,3 @@ Quality, Tooling, and Operations
 8. [ ] Continuous Integration: lint, typecheck, build, test, and preview deployments on each PR.
 9. [ ] Release strategy: semantic‑release with conventional commits and automated changelogs.
 10. [ ] Publish packages to npm under an org scope; include example consumers.
-11. [ ] MAYBE: Establish Shadow DOM and CSS isolation strategy.
