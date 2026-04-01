@@ -1,6 +1,6 @@
 <template>
   <div class="about">
-    <wcf-widget data-widget-name="@mf/react" data-props='{"initialCount": 7}' data-auto-mount='true' ></wcf-widget>
+    <wcf-widget data-widget-name="@widget/react" data-props='{"initialCount": 7}' data-auto-mount='true' ></wcf-widget>
   </div>
 </template>
 

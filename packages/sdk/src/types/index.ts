@@ -101,6 +101,20 @@ export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
 export type MfeFactory = () => ExternalLifecycleFunctions
 
 /**
+ * The lifecycle status of a registered MFE instance.
+ */
+export type AppStatus = 'registered' | 'bootstrapped' | 'mounted'
+
+/**
+ * A snapshot of a single MFE instance tracked in the application registry.
+ */
+export interface AppRegistryEntry {
+  id: string
+  name: string
+  status: AppStatus
+}
+
+/**
  * Represents a mapping of event names to their corresponding data types.
  * This type definition is commonly used to define the structure of events and their associated payloads
  * for strongly-typed event handling systems.

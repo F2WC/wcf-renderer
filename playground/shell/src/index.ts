@@ -1,24 +1,4 @@
-import createRouter, { type Routes } from 'web-component-framework-renderer-shell'
-import 'web-component-framework-renderer-sdk'
+import { getMountedApps, getAppStatus, getAppNames } from 'web-component-framework-renderer-sdk'
 
-const routes: Routes = [
-  {
-    path: '/{*path}',
-    name: '@mf/vue',
-    beforeEnter: () => {
-      console.log('Entering Vue route');
-    },
-    afterEnter: () => {
-      console.log('After enter Vue route');
-    },
-    children: [
-      {
-        path: '/react',
-        name: '@mf/react',
-      }
-    ]
-  },
-]
-
-// await createRouter(routes)
-
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+(window as any).__wcf = { getMountedApps, getAppStatus, getAppNames }
