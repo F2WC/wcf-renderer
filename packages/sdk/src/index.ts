@@ -91,11 +91,18 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
           return
         }
         logger.debug(`Mounting MFE ${options.name} with id ${id}`)
+        const addedStyles: HTMLLinkElement[] = []
         options.cssURLs?.forEach((cssUrl) => {
-          loadedStyles.push(createStyleElement(cssUrl, id))
+          addedStyles.push(createStyleElement(cssUrl, id))
           createPreloadLink(cssUrl, id)
         })
-        await appLifecycle.mount()
+        try {
+          await appLifecycle.mount()
+        } catch (e) {
+          addedStyles.forEach((link) => link.remove())
+          throw e
+        }
+        loadedStyles = addedStyles
         isMounted = true
         setAppStatus(id, 'mounted')
         eventBus.emit(MFE_EVENTS.MOUNTED, { id, name: options.name })
@@ -107,16 +114,19 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
           return
         }
         logger.debug(`Unmounting MFE ${options.name} with id ${id}.`)
-        await appLifecycle.unmount()
-        loadedStyles.forEach((link) => {
-          link.remove()
-        })
-        loadedStyles = []
-        isMounted = false
-        isBootstrapped = false
-        appLifecycle = undefined
-        removeApp(id)
-        eventBus.emit(MFE_EVENTS.UNMOUNTED, { id, name: options.name })
+        try {
+          await appLifecycle.unmount()
+        } finally {
+          loadedStyles.forEach((link) => {
+            link.remove()
+          })
+          loadedStyles = []
+          isMounted = false
+          isBootstrapped = false
+          appLifecycle = undefined
+          removeApp(id)
+          eventBus.emit(MFE_EVENTS.UNMOUNTED, { id, name: options.name })
+        }
       },
 
       update: async (newProps: ComponentProps) => {

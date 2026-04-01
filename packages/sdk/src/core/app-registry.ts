@@ -28,7 +28,7 @@ export function removeApp(id: string): void {
 }
 
 export function getMountedApps(): AppRegistryEntry[] {
-  return [...getRegistry().values()].filter((e) => e.status === 'mounted')
+  return [...getRegistry().values()].filter((e) => e.status === 'mounted').map((e) => ({ ...e }))
 }
 
 export function getAppStatus(id: string): AppStatus | undefined {
