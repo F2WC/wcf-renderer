@@ -30,23 +30,24 @@ export interface LifecycleFunctions {
   bootstrap?: () => MaybePromise<void>
   mount: () => MaybePromise<void>
   unmount: () => MaybePromise<void>
+  update?: (newProps: ComponentProps) => MaybePromise<void>
 }
 
 /**
- * The public lifecycle API returned by `createMfe` for registration and orchestration.
- * Extends `LifecycleFunctions` but makes all lifecycle methods required and adds `register`.
+ * The public lifecycle API returned by `createMfe`.
+ *
+ * Sequence: `bootstrap(rootContainer, props)` → `mount()` → `unmount()`
+ *
+ * - `bootstrap` sets up the app instance and runs any pre-mount initialization.
+ * - `mount` renders the app into the container provided to `bootstrap`.
+ * - `unmount` tears down the app and cleans up resources.
  */
-export interface ExternalLifecycleFunctions extends Required<LifecycleFunctions> {
+export interface ExternalLifecycleFunctions {
   name: string
-  register: () => void
-}
-
-/**
- * Internal representation of a running MFE instance tracked by the SDK.
- * Includes the full external lifecycle API plus a unique `id`.
- */
-export interface AppInstance extends ExternalLifecycleFunctions {
-  id: string
+  bootstrap: (rootContainer: HTMLElement, props?: ComponentProps) => Promise<void>
+  mount: () => Promise<void>
+  unmount: () => Promise<void>
+  update?: (newProps: ComponentProps) => Promise<void>
 }
 
 /**
@@ -54,24 +55,20 @@ export interface AppInstance extends ExternalLifecycleFunctions {
  *
  * @property name The custom element tag name to register (e.g. `mfe-counter`).
  * @property cssURLs Optional list of CSS files to preload and attach while mounted.
- * @property customRootContainer Optional root element where the MFE should render; defaults to the root of the custom element.
  */
 export interface Options {
   name: string
   cssURLs?: string[]
-  customRootContainer?: HTMLElement
 }
 
 /**
  * HTML attribute contract supported by the custom element.
  * These are read from `HTMLElement.dataset` on the component instance.
  *
- * @property props A JSON string of props to pass to the MFE on mount.
- * @property autoMount If present (any value), the component will automatically bootstrap and mount when connected.
+ * @property mfeName The name/identifier of the MFE to load dynamically (used by wcf-mfe).
  */
 export interface ComponentAttributes {
-  props?: string
-  autoMount?: string
+  mfeName?: string
 }
 
 /**
@@ -97,9 +94,11 @@ export interface CreateMfeOptions {
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
 
 /**
- * A function that loads an MFE or widget by name and returns its lifecycle functions.
+ * The default export of an MFE module. Each call returns a fresh, isolated
+ * lifecycle instance — enabling multiple elements to load the same MFE
+ * independently despite JS module caching.
  */
-export type LoadApp = ({ name }: { name: string }) => Promise<ExternalLifecycleFunctions>
+export type MfeFactory = () => ExternalLifecycleFunctions
 
 /**
  * Represents a mapping of event names to their corresponding data types.
