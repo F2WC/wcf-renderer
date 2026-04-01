@@ -15,7 +15,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['@mf/vue', '@mf/react'],
+      external: ['@mf/vue', '@widget/react'],
     },
   }
 })

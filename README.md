@@ -93,7 +93,7 @@ SDK
 1. [ ] Define a clear MFE contract: attributes/props schema, events, and lifecycle signatures; versioned and documented.
 2. [ ] Extend the type‑safe event bus with namespacing and wildcard listeners (the base implementation exists).
 3. [ ] Expose a Vite plugin that generates an import map for the project containing entry files for JS and CSS.
-4. [ ] Add an application registry API: `getMountedApps()`, `getAppStatus()`, `getAppNames()` for runtime introspection.
+4. [x] Add an application registry API: `getMountedApps()`, `getAppStatus()`, `getAppNames()` for runtime introspection.
 5. [ ] Add structured lifecycle error handling: pluggable error handlers for bootstrap/mount/unmount failures.
 6. [ ] Add lifecycle timeouts: configurable max durations for bootstrap, mount, and unmount.
 7. [ ] Explore CSS isolation strategies (Shadow DOM, CSS layers, scoped selectors).

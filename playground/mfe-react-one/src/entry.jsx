@@ -22,7 +22,7 @@ export default createMfe(
     }
   },
   {
-    name: 'mfe-react-one',
+    name: '@widget/react',
     cssURLs: cssURL ? [cssURL] : undefined,
   },
 )

@@ -50,14 +50,14 @@ Current state: package `test` scripts are placeholders (`"Error: no test specifi
   - matched route `name` is loaded via a provided `loadApp` function;
   - loaded lifecycle is registered, then bootstrapped/mounted.
 - `playground/shell` wires runtime loading:
-  - uses an import map (`@mf/vue`, `@mf/react`) in `playground/shell/index.html`;
+  - uses an import map (`@mf/vue`, `@widget/react`) in `playground/shell/index.html`;
   - calls `createRouter(routes, ({ name }) => import(name))`.
 - `playground/mfe-vue-one` and `playground/mfe-react-one` each export SDK lifecycle bindings from `src/entry.*`; the shell importmap points directly to their Vite dev entry URLs in local dev.
 
 ## Key repository conventions
 
 - Keep the MFE naming chain aligned across files:
-  1. import-map key (e.g. `@mf/react`),
+  1. import-map key (e.g. `@widget/react`),
   2. route `name` in shell routes,
   3. `data-widget-name` when using `<wcf-widget>`.
 - Custom element tag names (e.g. `mfe-react-one`) are defined in each MFE’s `createMfe(..., { name })` options and used by the shell when creating DOM elements.

@@ -10,14 +10,29 @@ import type {
   Options,
 } from '@/types/index.js'
 import { eventBus, MFE_EVENTS } from '@/utils/events.ts'
+import {
+  registerApp,
+  removeApp,
+  setAppStatus,
+  getMountedApps,
+  getAppStatus,
+  getAppNames,
+} from '@/core/app-registry.js'
 
 // Register core components
 registerWidgetComponent()
 registerMfeComponent()
 
 // Re-export types and EventBus for public API
-export type { MaybePromise, ExternalLifecycleFunctions, MfeFactory } from '@/types/index.js'
+export type {
+  MaybePromise,
+  ExternalLifecycleFunctions,
+  MfeFactory,
+  AppStatus,
+  AppRegistryEntry,
+} from '@/types/index.js'
 export { eventBus, MFE_EVENTS }
+export { getMountedApps, getAppStatus, getAppNames }
 
 /**
  * Creates a self-contained lifecycle API for a micro-frontend.
@@ -52,10 +67,17 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
           return
         }
         logger.debug(`Bootstrapping MFE ${options.name} with id ${id}`)
+        registerApp({ id, name: options.name, status: 'registered' })
         eventBus.emit(MFE_EVENTS.REGISTERED, { name: options.name })
-        appLifecycle = appFactory({ rootContainer, props })
-        await appLifecycle.bootstrap?.()
+        try {
+          appLifecycle = appFactory({ rootContainer, props })
+          await appLifecycle.bootstrap?.()
+        } catch (e) {
+          removeApp(id)
+          throw e
+        }
         isBootstrapped = true
+        setAppStatus(id, 'bootstrapped')
         eventBus.emit(MFE_EVENTS.BOOTSTRAPPED, { id, name: options.name })
       },
 
@@ -75,6 +97,7 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         })
         await appLifecycle.mount()
         isMounted = true
+        setAppStatus(id, 'mounted')
         eventBus.emit(MFE_EVENTS.MOUNTED, { id, name: options.name })
       },
 
@@ -92,6 +115,7 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         isMounted = false
         isBootstrapped = false
         appLifecycle = undefined
+        removeApp(id)
         eventBus.emit(MFE_EVENTS.UNMOUNTED, { id, name: options.name })
       },
 
