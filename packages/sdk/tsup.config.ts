@@ -7,6 +7,7 @@ export default defineConfig({
   clean: false,
   dts: true,
   format: ['esm', 'cjs'],
-  minify: true,
+  // Intentionally unminified: the SDK contains a runtime-only dynamic import
+  minify: false,
   treeshake: true,
 })
