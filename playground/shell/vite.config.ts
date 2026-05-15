@@ -12,10 +12,15 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      clientPort: 8080,
+    },
   },
   build: {
     rollupOptions: {
       external: ['@mf/vue', '@widget/react'],
     },
-  }
+  },
 })

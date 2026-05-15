@@ -6,8 +6,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/mfe/vue/',
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   },
   plugins: [
     vue({
@@ -28,6 +29,12 @@ export default defineConfig({
     cors: true,
     port: 5174,
     strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      clientPort: 8080,
+      path: '/mfe/vue/',
+    },
   },
   build: {
     lib: {

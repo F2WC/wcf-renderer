@@ -1,17 +1,25 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import wcfReact from 'web-component-framework-renderer-vite-react'
 import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/mfe/react/',
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   },
-  plugins: [react()],
+  plugins: [wcfReact(), react()],
   server: {
     cors: true,
     port: 5175,
     strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      clientPort: 8080,
+      path: '/mfe/react/',
+    },
   },
   build: {
     lib: {

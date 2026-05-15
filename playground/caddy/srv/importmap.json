@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@mf/vue": "/mfe/vue/src/entry.ts",
+    "@widget/react": "/mfe/react/src/entry.jsx"
+  }
+}

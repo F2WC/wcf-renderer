@@ -12,7 +12,7 @@ export default createMfe(
       mount: () => {
         root.render(
           <StrictMode>
-            <App initialCount={props?.initialCount ?? 0}/>
+            <App initialCount={props?.initialCount ?? 0} />
           </StrictMode>,
         )
       },

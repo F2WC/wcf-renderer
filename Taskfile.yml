@@ -1,0 +1,32 @@
+version: '3'
+
+tasks:
+  up:
+    desc: "Start the playground (Caddy + watchers + Vite dev servers)"
+    cmds:
+      - docker-compose up --build
+
+  "up:detached":
+    desc: "Start the playground in the background"
+    cmds:
+      - docker-compose up --build -d
+
+  down:
+    desc: "Stop the playground"
+    cmds:
+      - docker-compose down
+
+  logs:
+    desc: "Tail logs for a service (usage- task logs -- shell-app)"
+    cmds:
+      - docker-compose logs -f {{.CLI_ARGS}}
+
+  ps:
+    desc: "List running services"
+    cmds:
+      - docker-compose ps
+
+  nuke:
+    desc: "Stop everything and remove volumes (full reset of installed deps)"
+    cmds:
+      - docker-compose down -v

@@ -1,0 +1,30 @@
+{
+	auto_https off
+	admin off
+}
+
+:8080 {
+	encode zstd gzip
+
+	# Static importmap (simulates future `publisher` output).
+	handle /importmap.json {
+		root * /srv
+		file_server
+	}
+
+	# Per-MFE reverse proxy. `handle` (not `handle_path`) preserves the path
+	# prefix so Vite's `base: '/mfe/<n>/'` resolves correctly. WebSocket
+	# upgrade for HMR is automatic.
+	handle /mfe/vue/* {
+		reverse_proxy mfe-vue-one:5174
+	}
+
+	handle /mfe/react/* {
+		reverse_proxy mfe-react-one:5175
+	}
+
+	# App shell (Vite dev server) is the default. HMR WebSocket included.
+	handle {
+		reverse_proxy shell-app:5173
+	}
+}
