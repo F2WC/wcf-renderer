@@ -15,7 +15,11 @@
   "files": [
     "dist"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/components/**/*.ts",
+    "./dist/**/*.js",
+    "./dist/**/*.cjs"
+  ],
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
