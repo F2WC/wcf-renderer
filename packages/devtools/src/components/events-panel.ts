@@ -161,6 +161,29 @@ class EventsPanel extends LitElement {
         opacity: 0.4;
         line-height: 1;
       }
+
+      .diff {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+        align-items: baseline;
+        font-family: var(--dt-font-mono);
+        font-size: var(--dt-font-size-xs);
+      }
+
+      .diff-key {
+        color: var(--dt-diff-key);
+      }
+
+      .diff-from {
+        color: var(--dt-diff-from);
+        text-decoration: line-through;
+        opacity: 0.8;
+      }
+
+      .diff-to {
+        color: var(--dt-diff-to);
+      }
     `,
   ]
 

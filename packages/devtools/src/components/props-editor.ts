@@ -151,7 +151,7 @@ export class PropsEditor extends LitElement {
       new CustomEvent('wcf:prop-add', {
         bubbles: true,
         composed: true,
-        detail: { key: this._draftKey, value: this._draftValue },
+        detail: { element: this.element, key: this._draftKey, value: this._draftValue },
       }),
     )
     this._draftKey = ''
@@ -177,7 +177,7 @@ export class PropsEditor extends LitElement {
                   new CustomEvent('wcf:prop-edit', {
                     bubbles: true,
                     composed: true,
-                    detail: { key, value: (e.target as HTMLInputElement).value },
+                    detail: { element: this.element, key, value: (e.target as HTMLInputElement).value },
                   }),
                 )
               }}
@@ -189,7 +189,7 @@ export class PropsEditor extends LitElement {
                   new CustomEvent('wcf:prop-remove', {
                     bubbles: true,
                     composed: true,
-                    detail: { key },
+                    detail: { element: this.element, key },
                   }),
                 )
               }}
