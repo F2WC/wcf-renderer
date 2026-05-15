@@ -3,17 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <title>Web Component Framework Renderer</title>
-    <script type="importmap">
-      {
-        "imports": {
-          "@mf/vue": "%VITE_MFE_VUE_ENTRY_URL%",
-          "@widget/react": "%VITE_MFE_REACT_ENTRY_URL%"
-        }
-      }
-    </script>
-    <script type="module" src="/src/index.ts"></script>
+    <script type="module" src="/src/bootstrap.ts"></script>
   </head>
   <body>
-    <wcf-mfe data-mfe-name="@mf/vue" data-auto-mount='true' data-prop-msg="Hello world!"></wcf-mfe>
+    <wcf-mfe data-mfe-name="@mf/vue" data-auto-mount="true" data-prop-msg="Hello world!"></wcf-mfe>
   </body>
 </html>
