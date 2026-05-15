@@ -1,4 +1,4 @@
-import type { AppRegistryEntry, AppStatus } from '@/types/index.js'
+import type { AppRegistryEntry, AppRegistryError, AppStatus } from '@/types/index.js'
 
 const REGISTRY_KEY = '__wcf_registry__'
 
@@ -18,9 +18,27 @@ export function registerApp(entry: AppRegistryEntry): void {
   getRegistry().set(entry.id, entry)
 }
 
-export function setAppStatus(id: string, status: AppStatus): void {
+export function setAppStatus(id: string, status: AppStatus, at: number): void {
   const entry = getRegistry().get(id)
-  if (entry) entry.status = status
+  if (!entry) return
+  entry.status = status
+  if (status === 'bootstrapped') entry.bootstrappedAt = at
+  else if (status === 'mounted') entry.mountedAt = at
+}
+
+export function markAppUnmounted(id: string, at: number): void {
+  const entry = getRegistry().get(id)
+  if (entry) entry.unmountedAt = at
+}
+
+export function setAppError(id: string, error: AppRegistryError): void {
+  const entry = getRegistry().get(id)
+  if (entry) entry.lastError = error
+}
+
+export function setAppSupportsUpdate(id: string, supportsUpdate: boolean): void {
+  const entry = getRegistry().get(id)
+  if (entry) entry.supportsUpdate = supportsUpdate
 }
 
 export function removeApp(id: string): void {
@@ -29,6 +47,10 @@ export function removeApp(id: string): void {
 
 export function getMountedApps(): AppRegistryEntry[] {
   return [...getRegistry().values()].filter((e) => e.status === 'mounted').map((e) => ({ ...e }))
+}
+
+export function getAllApps(): AppRegistryEntry[] {
+  return [...getRegistry().values()].map((e) => ({ ...e }))
 }
 
 export function getAppStatus(id: string): AppStatus | undefined {

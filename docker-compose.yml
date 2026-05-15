@@ -9,6 +9,7 @@ x-node-base: &node-base
     - root_node_modules:/app/node_modules
     - sdk_node_modules:/app/packages/sdk/node_modules
     - shell_package_node_modules:/app/packages/shell/node_modules
+    - devtools_node_modules:/app/packages/devtools/node_modules
     - vite_react_node_modules:/app/packages/vite-plugin-wcf-react/node_modules
     - shell_app_node_modules:/app/playground/shell/node_modules
     - mfe_vue_node_modules:/app/playground/mfe-vue-one/node_modules
@@ -45,6 +46,20 @@ services:
         condition: service_healthy
     healthcheck:
       test: ['CMD-SHELL', 'test -f /app/packages/shell/dist/index.js']
+      interval: 5s
+      timeout: 2s
+      retries: 60
+      start_period: 10s
+
+  devtools:
+    <<: *node-base
+    working_dir: /app/packages/devtools
+    command: sh -lc "npm run dev"
+    depends_on:
+      sdk:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'test -f /app/packages/devtools/dist/index.js']
       interval: 5s
       timeout: 2s
       retries: 60
@@ -89,6 +104,8 @@ services:
     depends_on:
       shell-package:
         condition: service_healthy
+      devtools:
+        condition: service_healthy
       mfe-vue-one:
         condition: service_started
       mfe-react-one:
@@ -110,6 +127,7 @@ volumes:
   root_node_modules:
   sdk_node_modules:
   shell_package_node_modules:
+  devtools_node_modules:
   vite_react_node_modules:
   shell_app_node_modules:
   mfe_vue_node_modules:

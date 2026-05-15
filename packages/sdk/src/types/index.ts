@@ -9,22 +9,6 @@ export type MaybePromise<T> = T | Promise<T>
  * Represents the lifecycle functions for a component or application.
  * These functions handle the specific stages of the lifecycle,
  * including setup, initialization, and teardown processes.
- *
- * @interface LifecycleFunctions
- *
- * @property {() => MaybePromise<void>} [bootstrap]
- *    An optional function that runs before the component or application
- *    is mounted. Typically used for setup processes such as initializing
- *    configurations or services.
- *
- * @property {() => MaybePromise<void>} mount
- *    A required function that runs when the component or application
- *    is ready to be loaded. Handles the initialization and rendering.
- *
- * @property {() => MaybePromise<void>} unmount
- *    A required function that runs when the component or application
- *    is being removed or destroyed. Handles cleanup operations, such
- *    as freeing resources or detaching event listeners.
  */
 export interface LifecycleFunctions {
   bootstrap?: () => MaybePromise<void>
@@ -38,11 +22,12 @@ export interface LifecycleFunctions {
  *
  * Sequence: `bootstrap(rootContainer, props)` → `mount()` → `unmount()`
  *
- * - `bootstrap` sets up the app instance and runs any pre-mount initialization.
- * - `mount` renders the app into the container provided to `bootstrap`.
- * - `unmount` tears down the app and cleans up resources.
+ * `id` uniquely identifies this lifecycle instance and is stamped on the
+ * host `<wcf-mfe>` / `<wcf-widget>` element as `data-wcf-id` so external
+ * tooling can resolve a registry entry back to its DOM node.
  */
 export interface ExternalLifecycleFunctions {
+  id: string
   name: string
   bootstrap: (rootContainer: HTMLElement, props?: ComponentProps) => Promise<void>
   mount: () => Promise<void>
@@ -52,9 +37,6 @@ export interface ExternalLifecycleFunctions {
 
 /**
  * Configuration passed by the MFE to describe its custom element and behavior.
- *
- * @property name The custom element tag name to register (e.g. `mfe-counter`).
- * @property cssURLs Optional list of CSS files to preload and attach while mounted.
  */
 export interface Options {
   name: string
@@ -63,9 +45,6 @@ export interface Options {
 
 /**
  * HTML attribute contract supported by the custom element.
- * These are read from `HTMLElement.dataset` on the component instance.
- *
- * @property mfeName The name/identifier of the MFE to load dynamically (used by wcf-mfe).
  */
 export interface ComponentAttributes {
   mfeName?: string
@@ -78,9 +57,6 @@ export type ComponentProps = Record<string, unknown>
 
 /**
  * Options provided by the AppShell when instantiating the MFE via `appFactory`.
- *
- * @property rootContainer The element the MFE should render into.
- * @property props Optional initial props passed to the MFE on bootstrap/mount.
  */
 export interface CreateMfeOptions {
   rootContainer: HTMLElement
@@ -89,16 +65,25 @@ export interface CreateMfeOptions {
 
 /**
  * A factory function, provided by the MFE, that creates and returns a fresh
- * instance of its application. It can receive props from the AppShell.
+ * instance of its application.
  */
 export type AppFactory = (options: CreateMfeOptions) => LifecycleFunctions
 
 /**
- * The default export of an MFE module. Each call returns a fresh, isolated
- * lifecycle instance — enabling multiple elements to load the same MFE
- * independently despite JS module caching.
+ * Options accepted by an MFE's default-exported factory.
+ *
+ * @property id Optional stable identifier to assign to the new lifecycle
+ *  instance. Used by the host element to preserve identity across
+ *  unmount/remount cycles. If omitted, the factory generates a fresh UUID.
  */
-export type MfeFactory = () => ExternalLifecycleFunctions
+export interface MfeFactoryOptions {
+  id?: string
+}
+
+/**
+ * The default export of an MFE module.
+ */
+export type MfeFactory = (options?: MfeFactoryOptions) => ExternalLifecycleFunctions
 
 /**
  * The lifecycle status of a registered MFE instance.
@@ -106,28 +91,39 @@ export type MfeFactory = () => ExternalLifecycleFunctions
 export type AppStatus = 'registered' | 'bootstrapped' | 'mounted'
 
 /**
+ * Captures the most recent error raised by a lifecycle transition for an instance.
+ */
+export interface AppRegistryError {
+  phase: 'bootstrap' | 'mount' | 'unmount'
+  message: string
+  stack?: string
+  at: number
+}
+
+/**
  * A snapshot of a single MFE instance tracked in the application registry.
+ *
+ * Timing fields use `performance.now()` and may be undefined until the
+ * corresponding transition has completed.
  */
 export interface AppRegistryEntry {
   id: string
   name: string
   status: AppStatus
+  registeredAt: number
+  bootstrappedAt?: number
+  mountedAt?: number
+  unmountedAt?: number
+  supportsUpdate: boolean
+  lastError?: AppRegistryError
 }
 
 /**
  * Represents a mapping of event names to their corresponding data types.
- * This type definition is commonly used to define the structure of events and their associated payloads
- * for strongly-typed event handling systems.
- *
- * Each key in the `EventMap` represents the name of an event as a string,
- * and the associated value represents the type of data that the event carries.
  */
 export type EventMap = Record<string, unknown>
 
 /**
  * A type representing a listener function for handling custom events.
- *
- * @template E - The type of data carried by the custom event.
- * @param {CustomEvent<E>} evt - The custom event object containing event details and payload.
  */
 export type Listener<E> = (evt: CustomEvent<E>) => void
