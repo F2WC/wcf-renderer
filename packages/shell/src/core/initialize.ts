@@ -24,7 +24,7 @@ export async function initialize(options: InitializeOptions = {}): Promise<void>
   const url = options.importmapUrl ?? '/importmap.json'
   const res = await fetch(url, { cache: 'no-store' })
   if (!res.ok) {
-    throw new Error(`Failed to load importmap from ${url}: ${res.status}`)
+    throw new Error(`Failed to load importmap from ${url}: ${String(res.status)}`)
   }
   const importmap = await res.text()
 

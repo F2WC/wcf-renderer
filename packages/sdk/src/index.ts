@@ -99,7 +99,9 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         try {
           await appLifecycle.mount()
         } catch (e) {
-          addedStyles.forEach((link) => link.remove())
+          addedStyles.forEach((link) => {
+            link.remove()
+          })
           throw e
         }
         loadedStyles = addedStyles

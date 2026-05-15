@@ -48,16 +48,14 @@ export default function wcfReact(options: WcfReactOptions = {}): Plugin {
           ? (config.build.lib.entry as string | undefined)
           : undefined
       const entryOpt = options.entry ?? libEntry ?? 'src/entry.jsx'
-      entryAbsPath = path.isAbsolute(entryOpt)
-        ? entryOpt
-        : path.resolve(config.root, entryOpt)
+      entryAbsPath = path.isAbsolute(entryOpt) ? entryOpt : path.resolve(config.root, entryOpt)
       viteBase = config.base
     },
     transform(_code, id) {
       if (!entryAbsPath) return null
-      const [filePath, query] = id.split('?')
+      const [filePath] = id.split('?')
       if (filePath !== entryAbsPath) return null
-      if (query && query.includes(INNER_QUERY)) return null
+      if (id.includes(INNER_QUERY)) return null
 
       const refreshUrl = `${viteBase.replace(/\/$/, '')}/@react-refresh`
       const innerSpecifier = `./${path.basename(filePath)}?${INNER_QUERY}`
