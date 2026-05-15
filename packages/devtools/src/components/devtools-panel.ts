@@ -199,7 +199,7 @@ class WcfDevtoolsPanel extends LitElement {
     eventBus.on(MFE_EVENTS.UNMOUNTED, handle('MFE:UNMOUNTED'))
 
     this.#unsubLog = this.#log.subscribe(() => {
-      this.events = this.#log.entries()
+      this.events = [...this.#log.entries()]
     })
 
     this.#onKeydown = (e: KeyboardEvent) => {
