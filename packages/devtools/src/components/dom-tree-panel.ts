@@ -32,6 +32,26 @@ function getWcfAncestors(
   return { depth, parent }
 }
 
+function toTreeOrder(entries: DomEntry[]): DomEntry[] {
+  const result: DomEntry[] = []
+  const childrenOf = (parent: WcfHostElement) =>
+    entries
+      .filter((e) => e.wcfParent === parent)
+      .sort((a, b) => a.specifier.localeCompare(b.specifier))
+
+  function visit(entry: DomEntry) {
+    result.push(entry)
+    for (const child of childrenOf(entry.element)) visit(child)
+  }
+
+  const roots = entries
+    .filter((e) => !e.wcfParent)
+    .sort((a, b) => a.specifier.localeCompare(b.specifier))
+  for (const root of roots) visit(root)
+
+  return result
+}
+
 class DomTreePanel extends LitElement {
   static styles = [
     tokens,
@@ -317,9 +337,7 @@ class DomTreePanel extends LitElement {
       `
     }
 
-    const sorted = [...this._entries].sort(
-      (a, b) => a.wcfDepth - b.wcfDepth || a.specifier.localeCompare(b.specifier),
-    )
+    const sorted = toTreeOrder(this._entries)
 
     return html`
       <div class="route-bar">
