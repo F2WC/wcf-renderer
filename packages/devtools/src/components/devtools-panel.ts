@@ -24,6 +24,8 @@ import type { WcfHostElement } from 'web-component-framework-renderer-sdk'
 import './devtools-header.ts'
 import './devtools-tabs.ts'
 import './apps-panel.ts'
+import './timeline-panel.ts'
+import './dom-tree-panel.ts'
 import './events-panel.ts'
 import './overrides-panel.ts'
 
@@ -415,6 +417,12 @@ class WcfDevtoolsPanel extends LitElement {
                 .expanded=${this.expanded}
                 .overrides=${this.overrides}
               ></wcf-apps-panel>`
+            : nothing}
+          ${this.ui.panel === 'timeline'
+            ? html`<wcf-timeline-panel .apps=${this.apps}></wcf-timeline-panel>`
+            : nothing}
+          ${this.ui.panel === 'dom-tree'
+            ? html`<wcf-dom-tree-panel .apps=${this.apps}></wcf-dom-tree-panel>`
             : nothing}
           ${this.ui.panel === 'events'
             ? html`<wcf-events-panel

@@ -30,7 +30,7 @@ class InstanceCard extends LitElement {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 6px;
+        margin-bottom: var(--dt-space-2);
       }
 
       .short-id {
@@ -65,23 +65,115 @@ class InstanceCard extends LitElement {
         color: var(--dt-c-registered-text);
       }
 
-      .instance-meta {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: 3px 12px;
-        font-size: var(--dt-font-size-sm);
+      /* ── Lifecycle stepper ── */
+
+      .lifecycle-stepper {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: var(--dt-space-2);
       }
 
-      .meta-label {
+      .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        gap: 3px;
+        position: relative;
+        min-width: 0;
+      }
+
+      /* connector line to the next step */
+      .step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 7px;
+        left: calc(50% + 8px);
+        right: calc(-50% + 8px);
+        height: 1px;
+        background: var(--dt-border);
+        z-index: 0;
+      }
+
+      .step.done:not(:last-child)::after {
+        background: var(--dt-accent-dim);
+      }
+
+      .step-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid var(--dt-border);
+        background: var(--dt-bg-chip);
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        transition:
+          border-color var(--dt-dur-xs) var(--dt-ease),
+          background var(--dt-dur-xs) var(--dt-ease);
+      }
+
+      .step.done .step-dot {
+        border-color: var(--dt-accent);
+        background: var(--dt-accent-dim);
+      }
+
+      .step.active .step-dot {
+        border-color: var(--dt-c-mounted-text);
+        background: var(--dt-c-mounted-bg);
+        box-shadow: 0 0 5px color-mix(in srgb, var(--dt-c-mounted-text) 40%, transparent);
+      }
+
+      .step.error .step-dot {
+        border-color: var(--dt-danger-text);
+        background: var(--dt-danger-bg);
+      }
+
+      .step.unmounted .step-dot {
+        border-color: var(--dt-c-unmounted-text);
+        background: var(--dt-c-unmounted-bg);
+      }
+
+      .step-label {
+        font-size: var(--dt-font-size-xs);
+        color: var(--dt-text-muted);
+        text-align: center;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+
+      .step.done .step-label,
+      .step.active .step-label {
         color: var(--dt-text-secondary);
       }
 
-      .meta-value {
-        font-family: var(--dt-font-mono);
+      .step.error .step-label {
+        color: var(--dt-danger-text);
       }
 
+      .step.unmounted .step-label {
+        color: var(--dt-c-unmounted-text);
+      }
+
+      .step-time {
+        font-family: var(--dt-font-mono);
+        font-size: var(--dt-font-size-xs);
+        color: var(--dt-text-muted);
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .step.active .step-time {
+        color: var(--dt-c-mounted-text);
+      }
+
+      .step.error .step-time {
+        color: var(--dt-danger-text);
+      }
+
+      /* ── Error box ── */
+
       .error-box {
-        grid-column: 1 / -1;
         background: var(--dt-danger-bg);
         border: 1px solid var(--dt-danger-border);
         color: var(--dt-danger-text);
@@ -89,7 +181,11 @@ class InstanceCard extends LitElement {
         border-radius: var(--dt-radius-xs);
         font-size: var(--dt-font-size-xs);
         font-family: var(--dt-font-mono);
+        margin-bottom: var(--dt-space-2);
+        word-break: break-word;
       }
+
+      /* ── Actions ── */
 
       .instance-actions {
         display: flex;
@@ -135,7 +231,6 @@ class InstanceCard extends LitElement {
         color: var(--dt-accent);
         opacity: 1;
       }
-
     `,
   ]
 
@@ -158,7 +253,9 @@ class InstanceCard extends LitElement {
     if (!this.instance?.id) return
     await navigator.clipboard.writeText(this.instance.id)
     this._copied = true
-    setTimeout(() => { this._copied = false }, 1200)
+    setTimeout(() => {
+      this._copied = false
+    }, 1200)
   }
 
   #onMouseEnter = () => {
@@ -179,36 +276,82 @@ class InstanceCard extends LitElement {
     )
   }
 
-  #renderMeta() {
+  #renderStepper() {
     const inst = this.instance
     if (!inst) return ''
 
-    const registered = inst.registeredAt ? formatWallTime(inst.registeredAt) : '—'
-    const bootstrapDuration =
-      inst.registeredAt && inst.bootstrappedAt
-        ? formatDuration(inst.bootstrappedAt - inst.registeredAt)
-        : '—'
-    const mountDuration =
-      inst.bootstrappedAt && inst.mountedAt
-        ? formatDuration(inst.mountedAt - inst.bootstrappedAt)
-        : '—'
-    const tti =
-      inst.registeredAt && inst.mountedAt ? formatDuration(inst.mountedAt - inst.registeredAt) : '—'
+    const isUnmounted = !!inst.unmountedAt
+    const hasError = !!inst.lastError
+    const errorPhase = inst.lastError?.phase
+
+    const bootstrapMs =
+      inst.registeredAt && inst.bootstrappedAt ? inst.bootstrappedAt - inst.registeredAt : undefined
+    const mountMs =
+      inst.bootstrappedAt && inst.mountedAt ? inst.mountedAt - inst.bootstrappedAt : undefined
+    const unmountMs =
+      inst.mountedAt && inst.unmountedAt ? inst.unmountedAt - inst.mountedAt : undefined
+
+    const regClass = 'done'
+    const bootClass =
+      errorPhase === 'bootstrap'
+        ? 'error'
+        : inst.bootstrappedAt
+          ? isUnmounted || inst.status === 'mounted'
+            ? 'done'
+            : 'active'
+          : 'pending'
+    const mountClass =
+      errorPhase === 'mount'
+        ? 'error'
+        : inst.mountedAt
+          ? isUnmounted
+            ? 'done'
+            : 'active'
+          : 'pending'
+    const unmountClass = isUnmounted ? 'unmounted' : 'pending'
+
+    const steps = [
+      {
+        cls: regClass,
+        label: 'Register',
+        time: formatWallTime(inst.registeredAt),
+      },
+      {
+        cls: bootClass,
+        label: 'Bootstrap',
+        time: bootstrapMs !== undefined ? formatDuration(bootstrapMs) : '—',
+      },
+      {
+        cls: mountClass,
+        label: 'Mount',
+        time: mountMs !== undefined ? formatDuration(mountMs) : '—',
+      },
+      ...(isUnmounted
+        ? [
+            {
+              cls: unmountClass,
+              label: 'Unmount',
+              time: unmountMs !== undefined ? formatDuration(unmountMs) : '—',
+            },
+          ]
+        : []),
+    ]
 
     return html`
-      <div class="instance-meta">
-        <span class="meta-label">Registered</span>
-        <span class="meta-value">${registered}</span>
-        <span class="meta-label">Bootstrap</span>
-        <span class="meta-value">${bootstrapDuration}</span>
-        <span class="meta-label">Mount</span>
-        <span class="meta-value">${mountDuration}</span>
-        <span class="meta-label">TTI</span>
-        <span class="meta-value">${tti}</span>
-        ${inst.lastError
-          ? html`<div class="error-box">[${inst.lastError.phase}] ${inst.lastError.message}</div>`
-          : ''}
+      <div class="lifecycle-stepper">
+        ${steps.map(
+          (s) => html`
+            <div class="step ${s.cls}">
+              <div class="step-dot"></div>
+              <span class="step-label">${s.label}</span>
+              <span class="step-time">${s.time}</span>
+            </div>
+          `,
+        )}
       </div>
+      ${hasError
+        ? html`<div class="error-box">[${inst.lastError?.phase}] ${inst.lastError?.message}</div>`
+        : ''}
     `
   }
 
@@ -223,15 +366,13 @@ class InstanceCard extends LitElement {
           ${inst ? html`<span class="badge ${status}">${status}</span>` : ''}
           <span class="short-id">${id}</span>
           ${inst
-            ? html`<button
-                class="copy-btn"
-                title="Copy full ID"
-                @click=${this.#copyId}
-              >${this._copied ? '✓' : '⎘'}</button>`
+            ? html`<button class="copy-btn" title="Copy full ID" @click=${this.#copyId}>
+                ${this._copied ? '✓' : '⎘'}
+              </button>`
             : ''}
         </div>
 
-        ${this.#renderMeta()}
+        ${this.#renderStepper()}
 
         <div class="instance-actions">
           ${inst

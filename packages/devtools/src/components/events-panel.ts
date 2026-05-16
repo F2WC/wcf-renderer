@@ -120,8 +120,14 @@ class EventsPanel extends LitElement {
       }
 
       @keyframes event-in {
-        from { opacity: 0; transform: translateY(-4px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .event:first-child {
@@ -223,13 +229,20 @@ class EventsPanel extends LitElement {
 
   #eventTypeClass(type: string): string {
     switch (type) {
-      case 'MFE:REGISTERED': return 'registered'
-      case 'MFE:BOOTSTRAPPED': return 'bootstrapped'
-      case 'MFE:MOUNTED': return 'mounted'
-      case 'MFE:UPDATED': return 'updated'
-      case 'MFE:UNMOUNTED': return 'unmounted'
-      case 'ERROR': return 'error-type'
-      default: return ''
+      case 'MFE:REGISTERED':
+        return 'registered'
+      case 'MFE:BOOTSTRAPPED':
+        return 'bootstrapped'
+      case 'MFE:MOUNTED':
+        return 'mounted'
+      case 'MFE:UPDATED':
+        return 'updated'
+      case 'MFE:UNMOUNTED':
+        return 'unmounted'
+      case 'ERROR':
+        return 'error-type'
+      default:
+        return ''
     }
   }
 

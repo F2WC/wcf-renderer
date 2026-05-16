@@ -177,7 +177,11 @@ export class PropsEditor extends LitElement {
                   new CustomEvent('wcf:prop-edit', {
                     bubbles: true,
                     composed: true,
-                    detail: { element: this.element, key, value: (e.target as HTMLInputElement).value },
+                    detail: {
+                      element: this.element,
+                      key,
+                      value: (e.target as HTMLInputElement).value,
+                    },
                   }),
                 )
               }}

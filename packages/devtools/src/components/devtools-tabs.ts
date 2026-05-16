@@ -2,7 +2,15 @@ import { LitElement, css, html } from 'lit'
 import { tokens } from '../styles/tokens.css.ts'
 import { reset } from '../styles/reset.css.ts'
 
-type Panel = 'apps' | 'events' | 'overrides'
+type Panel = 'apps' | 'timeline' | 'dom-tree' | 'events' | 'overrides'
+
+const TABS: { id: Panel; label: string }[] = [
+  { id: 'apps', label: 'Apps' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'dom-tree', label: 'DOM' },
+  { id: 'events', label: 'Events' },
+  { id: 'overrides', label: 'Overrides' },
+]
 
 export class DevtoolsTabs extends LitElement {
   static properties = {
@@ -39,7 +47,7 @@ export class DevtoolsTabs extends LitElement {
         position: absolute;
         bottom: 0;
         left: var(--tab-offset, 0%);
-        width: 33.333%;
+        width: 20%;
         height: 2px;
         background: var(--dt-accent);
         border-radius: var(--dt-radius-pill) var(--dt-radius-pill) 0 0;
@@ -49,17 +57,18 @@ export class DevtoolsTabs extends LitElement {
 
       button[role='tab'] {
         flex: 1;
-        padding: var(--dt-space-2) var(--dt-space-3);
+        padding: var(--dt-space-2) 4px;
         background: none;
         border: none;
         cursor: pointer;
         font-family: var(--dt-font-ui);
-        font-size: var(--dt-font-size-sm);
+        font-size: var(--dt-font-size-xs);
         color: var(--dt-text-secondary);
         transition:
           color var(--dt-dur-xs) var(--dt-ease),
           background var(--dt-dur-xs) var(--dt-ease);
         outline: none;
+        white-space: nowrap;
       }
 
       button[role='tab']:hover {
@@ -88,7 +97,7 @@ export class DevtoolsTabs extends LitElement {
         font-weight: 700;
         background: var(--dt-bg-chip);
         color: var(--dt-text-muted);
-        margin-left: 4px;
+        margin-left: 3px;
         vertical-align: middle;
         transition:
           background var(--dt-dur-xs) var(--dt-ease),
@@ -103,16 +112,9 @@ export class DevtoolsTabs extends LitElement {
   ]
 
   get #tabOffset(): string {
-    switch (this.panel) {
-      case 'apps':
-        return '0%'
-      case 'events':
-        return '33.333%'
-      case 'overrides':
-        return '66.666%'
-      default:
-        return '0%'
-    }
+    const idx = TABS.findIndex((t) => t.id === this.panel)
+    const pct = ((idx < 0 ? 0 : idx) / TABS.length) * 100
+    return `${pct.toFixed(4)}%`
   }
 
   #selectTab(panel: Panel) {
@@ -125,36 +127,30 @@ export class DevtoolsTabs extends LitElement {
     )
   }
 
+  #count(id: Panel): number | undefined {
+    if (id === 'apps') return this.appCount
+    if (id === 'events') return this.eventCount
+    if (id === 'overrides') return this.overrideCount
+    return undefined
+  }
+
   render() {
     return html`
       <div class="tablist" role="tablist" style="--tab-offset: ${this.#tabOffset}">
-        <button
-          role="tab"
-          aria-selected=${this.panel === 'apps' ? 'true' : 'false'}
-          @click=${() => {
-            this.#selectTab('apps')
-          }}
-        >
-          Apps <span class="count">${this.appCount}</span>
-        </button>
-        <button
-          role="tab"
-          aria-selected=${this.panel === 'events' ? 'true' : 'false'}
-          @click=${() => {
-            this.#selectTab('events')
-          }}
-        >
-          Events <span class="count">${this.eventCount}</span>
-        </button>
-        <button
-          role="tab"
-          aria-selected=${this.panel === 'overrides' ? 'true' : 'false'}
-          @click=${() => {
-            this.#selectTab('overrides')
-          }}
-        >
-          Overrides <span class="count">${this.overrideCount}</span>
-        </button>
+        ${TABS.map((tab) => {
+          const count = this.#count(tab.id)
+          return html`
+            <button
+              role="tab"
+              aria-selected=${this.panel === tab.id ? 'true' : 'false'}
+              @click=${() => {
+                this.#selectTab(tab.id)
+              }}
+            >
+              ${tab.label} ${count !== undefined ? html`<span class="count">${count}</span>` : ''}
+            </button>
+          `
+        })}
       </div>
     `
   }

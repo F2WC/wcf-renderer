@@ -127,15 +127,15 @@ class AppsPanel extends LitElement {
       ${specifiers.length === 0
         ? html`<div class="empty"><span>No match for "${this._search}"</span></div>`
         : specifiers.map(
-        (specifier) => html`
-          <wcf-specifier-row
-            .specifier=${specifier}
-            .elements=${findElementsForSpecifier(specifier)}
-            .instances=${this.apps}
-            .isExpanded=${this.expanded.has(specifier)}
-          ></wcf-specifier-row>
-        `,
-      )}
+            (specifier) => html`
+              <wcf-specifier-row
+                .specifier=${specifier}
+                .elements=${findElementsForSpecifier(specifier)}
+                .instances=${this.apps}
+                .isExpanded=${this.expanded.has(specifier)}
+              ></wcf-specifier-row>
+            `,
+          )}
     `
   }
 }

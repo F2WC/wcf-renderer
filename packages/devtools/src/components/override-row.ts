@@ -170,7 +170,9 @@ export class OverrideRow extends LitElement {
             `
           : html`<span class="placeholder"></span>`}
         ${this.isOverridden && this.baseUrl
-          ? html`<span class="base-hint" title="Base URL: ${this.baseUrl}">was: ${this.baseUrl}</span>`
+          ? html`<span class="base-hint" title="Base URL: ${this.baseUrl}"
+              >was: ${this.baseUrl}</span
+            >`
           : ''}
       </div>
     `
