@@ -357,7 +357,7 @@ class InstanceCard extends LitElement {
 
   render() {
     const inst = this.instance
-    const id = inst ? shortId(inst.id) : '—'
+    const id = inst ? shortId(inst.id) : ''
     const status = inst?.status ?? 'registered'
 
     return html`

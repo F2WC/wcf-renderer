@@ -9,21 +9,26 @@ export function findElementsForSpecifier(specifier: string): WcfHostElement[] {
   )
 }
 
-let highlighted: HTMLElement | undefined
-let savedOutline: string | undefined
+let overlay: HTMLDivElement | undefined
 
 export function highlightElement(element: HTMLElement): void {
   clearHighlight()
-  highlighted = element
-  savedOutline = element.style.outline
-  element.style.outline = '2px solid var(--dt-warn-text, #f59e0b)'
-  element.style.outlineOffset = '2px'
+  const rect = element.getBoundingClientRect()
+  overlay = document.createElement('div')
+  overlay.style.cssText = [
+    'position:fixed',
+    `top:${rect.top.toFixed(2)}px`,
+    `left:${rect.left.toFixed(2)}px`,
+    `width:${rect.width.toFixed(2)}px`,
+    `height:${rect.height.toFixed(2)}px`,
+    'box-shadow:inset 0 0 0 2px #f59e0b',
+    'pointer-events:none',
+    'z-index:2147483646',
+  ].join(';')
+  document.body.appendChild(overlay)
 }
 
 export function clearHighlight(): void {
-  if (highlighted) {
-    highlighted.style.outline = savedOutline ?? ''
-    highlighted.style.outlineOffset = ''
-    highlighted = undefined
-  }
+  overlay?.remove()
+  overlay = undefined
 }
