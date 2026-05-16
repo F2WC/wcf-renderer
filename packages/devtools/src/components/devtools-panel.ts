@@ -154,6 +154,7 @@ class WcfDevtoolsPanel extends LitElement {
   declare search: string
 
   #log = new EventLog()
+  #ghostApps = new Map<string, AppRegistryEntry>()
   #unsubLog: (() => void) | undefined
   #onKeydown: ((e: KeyboardEvent) => void) | undefined
 
@@ -174,6 +175,15 @@ class WcfDevtoolsPanel extends LitElement {
 
     const handle = (type: LogEntry['type']) => (event: Event) => {
       const detail = (event as CustomEvent).detail as { id?: string; name: string } | undefined
+
+      // Snapshot before getAllApps so the entry survives removeApp() in the SDK unmount path
+      if (type === 'MFE:UNMOUNTED' && detail?.id) {
+        const existing = this.apps.find((a) => a.id === detail.id)
+        if (existing) {
+          this.#ghostApps.set(existing.id, { ...existing, unmountedAt: performance.now() })
+        }
+      }
+
       this.#log.push({
         type,
         name: detail?.name ?? '?',
@@ -181,7 +191,15 @@ class WcfDevtoolsPanel extends LitElement {
         timestamp: performance.now(),
         payload: detail,
       })
-      this.apps = getAllApps()
+
+      const live = getAllApps()
+      const liveIds = new Set(live.map((a) => a.id))
+      // Drop ghosts that have remounted under the same ID
+      for (const id of this.#ghostApps.keys()) {
+        if (liveIds.has(id)) this.#ghostApps.delete(id)
+      }
+      this.apps = [...live, ...this.#ghostApps.values()]
+
       const errored = this.apps.find((app) => app.id === detail?.id && app.lastError)
       if (errored?.lastError) {
         this.#log.push({
@@ -419,7 +437,7 @@ class WcfDevtoolsPanel extends LitElement {
               ></wcf-apps-panel>`
             : nothing}
           ${this.ui.panel === 'timeline'
-            ? html`<wcf-timeline-panel .apps=${this.apps}></wcf-timeline-panel>`
+            ? html`<wcf-timeline-panel .apps=${this.apps.filter((a) => !a.unmountedAt)}></wcf-timeline-panel>`
             : nothing}
           ${this.ui.panel === 'dom-tree'
             ? html`<wcf-dom-tree-panel .apps=${this.apps}></wcf-dom-tree-panel>`

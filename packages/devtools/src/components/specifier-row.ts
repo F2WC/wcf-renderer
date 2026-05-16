@@ -75,6 +75,11 @@ class SpecifierRow extends LitElement {
         color: var(--dt-c-available-text, var(--dt-text-secondary));
       }
 
+      .badge.unmounted {
+        background: var(--dt-c-unmounted-bg);
+        color: var(--dt-c-unmounted-text);
+      }
+
       .badge.error {
         background: var(--dt-c-error-bg, var(--dt-danger-bg));
         color: var(--dt-c-error-text, var(--dt-danger-text));
@@ -126,20 +131,21 @@ class SpecifierRow extends LitElement {
     this.isExpanded = false
   }
 
-  #aggregateStatus(): 'mounted' | 'bootstrapped' | 'registered' | 'available' {
-    let highest: 'mounted' | 'bootstrapped' | 'registered' | 'available' = 'available'
+  #aggregateStatus(): 'mounted' | 'bootstrapped' | 'registered' | 'unmounted' | 'available' {
+    let highest: 'mounted' | 'bootstrapped' | 'registered' | 'unmounted' | 'available' = 'available'
 
     for (const el of this.elements) {
       const id = el.getAttribute('data-wcf-id')
       const entry = this.instances.find((i) => i.id === id)
       if (!entry) continue
 
-      if (entry.status === 'mounted') return 'mounted'
-      if (entry.status === 'bootstrapped' && highest !== 'mounted') {
-        highest = 'bootstrapped'
-      } else if (entry.status === 'registered' && highest === 'available') {
-        highest = 'registered'
+      if (entry.unmountedAt) {
+        if (highest === 'available') highest = 'unmounted'
+        continue
       }
+      if (entry.status === 'mounted') return 'mounted'
+      if (entry.status === 'bootstrapped') highest = 'bootstrapped'
+      else if (highest === 'available') highest = 'registered'
     }
 
     return highest

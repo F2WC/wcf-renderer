@@ -65,6 +65,11 @@ class InstanceCard extends LitElement {
         color: var(--dt-c-registered-text);
       }
 
+      .badge.unmounted {
+        background: var(--dt-c-unmounted-bg);
+        color: var(--dt-c-unmounted-text);
+      }
+
       /* ── Lifecycle stepper ── */
 
       .lifecycle-stepper {
@@ -331,7 +336,7 @@ class InstanceCard extends LitElement {
             {
               cls: unmountClass,
               label: 'Unmount',
-              time: unmountMs !== undefined ? formatDuration(unmountMs) : '—',
+              time: formatWallTime(inst.unmountedAt),
             },
           ]
         : []),
@@ -358,7 +363,7 @@ class InstanceCard extends LitElement {
   render() {
     const inst = this.instance
     const id = inst ? shortId(inst.id) : ''
-    const status = inst?.status ?? 'registered'
+    const status = inst?.unmountedAt ? 'unmounted' : (inst?.status ?? 'registered')
 
     return html`
       <div class="instance" @mouseenter=${this.#onMouseEnter} @mouseleave=${this.#onMouseLeave}>
@@ -375,7 +380,7 @@ class InstanceCard extends LitElement {
         ${this.#renderStepper()}
 
         <div class="instance-actions">
-          ${inst
+          ${inst && !inst.unmountedAt
             ? html`
                 <button
                   @click=${() => {

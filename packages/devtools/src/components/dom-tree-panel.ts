@@ -185,6 +185,11 @@ class DomTreePanel extends LitElement {
         color: var(--dt-c-registered-text);
       }
 
+      .badge.unmounted {
+        background: var(--dt-c-unmounted-bg);
+        color: var(--dt-c-unmounted-text);
+      }
+
       .badge.error {
         background: var(--dt-danger-bg);
         color: var(--dt-danger-text);
@@ -293,7 +298,9 @@ class DomTreePanel extends LitElement {
   }
 
   #renderEntry(entry: DomEntry) {
-    const status = entry.instance?.status ?? 'registered'
+    const status = entry.instance?.unmountedAt
+      ? 'unmounted'
+      : (entry.instance?.status ?? 'registered')
     const hasError = !!entry.instance?.lastError
     const tagName = entry.element.tagName.toLowerCase()
     const depthPips = Math.min(entry.wcfDepth, 5)
