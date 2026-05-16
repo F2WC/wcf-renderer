@@ -66,7 +66,7 @@ class TimelinePanel extends LitElement {
 
       .legend-max {
         margin-left: auto;
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         color: var(--dt-text-muted);
       }
 
@@ -109,7 +109,7 @@ class TimelinePanel extends LitElement {
       }
 
       .instance-id {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
       }
@@ -153,7 +153,7 @@ class TimelinePanel extends LitElement {
       }
 
       .row-tti {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-secondary);
         text-align: right;

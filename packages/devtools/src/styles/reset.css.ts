@@ -3,7 +3,7 @@ import { css } from 'lit'
 export const reset = css`
   :host {
     all: initial;
-    font-family: var(--dt-font-ui);
+    font-family: var(--dt-font-ui), sans-serif;
     font-size: var(--dt-font-size-base);
     line-height: var(--dt-line-height);
     color: var(--dt-text-primary);

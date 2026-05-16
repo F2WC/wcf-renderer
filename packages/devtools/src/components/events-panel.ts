@@ -74,7 +74,7 @@ class EventsPanel extends LitElement {
       }
 
       .t {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
         white-space: nowrap;
@@ -90,7 +90,7 @@ class EventsPanel extends LitElement {
         background: var(--dt-bg-chip);
         color: var(--dt-text-secondary);
         white-space: nowrap;
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         letter-spacing: 0;
       }
 
@@ -145,7 +145,7 @@ class EventsPanel extends LitElement {
       }
 
       .instance-id {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
         white-space: nowrap;
@@ -173,7 +173,7 @@ class EventsPanel extends LitElement {
         flex-wrap: wrap;
         gap: 4px 6px;
         align-items: baseline;
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
       }
 

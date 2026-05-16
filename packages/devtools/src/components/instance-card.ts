@@ -34,7 +34,7 @@ class InstanceCard extends LitElement {
       }
 
       .short-id {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
       }
@@ -161,7 +161,7 @@ class InstanceCard extends LitElement {
       }
 
       .step-time {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
         text-align: center;
@@ -185,7 +185,7 @@ class InstanceCard extends LitElement {
         padding: 4px 6px;
         border-radius: var(--dt-radius-xs);
         font-size: var(--dt-font-size-xs);
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         margin-bottom: var(--dt-space-2);
         word-break: break-word;
       }

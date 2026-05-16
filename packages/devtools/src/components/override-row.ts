@@ -45,7 +45,7 @@ export class OverrideRow extends LitElement {
         border: 1px solid var(--dt-border);
         border-radius: var(--dt-radius-xs);
         color: var(--dt-text-primary);
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         padding: 3px var(--dt-space-2);
         outline: none;
@@ -97,7 +97,7 @@ export class OverrideRow extends LitElement {
 
       .base-hint {
         grid-column: 2;
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: 9px;
         color: var(--dt-text-muted);
         padding: 0 var(--dt-space-2);

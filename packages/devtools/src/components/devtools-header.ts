@@ -24,7 +24,7 @@ export class DevtoolsHeader extends LitElement {
         padding: var(--dt-space-2) var(--dt-space-3);
         background: var(--dt-bg-header);
         border-bottom: 1px solid var(--dt-border);
-        font-family: var(--dt-font-ui);
+        font-family: var(--dt-font-ui), sans-serif;
         font-size: var(--dt-font-size-sm);
       }
 
@@ -45,7 +45,7 @@ export class DevtoolsHeader extends LitElement {
 
       select,
       button {
-        font-family: var(--dt-font-ui);
+        font-family: var(--dt-font-ui), sans-serif;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-secondary);
         background: var(--dt-bg-chip);

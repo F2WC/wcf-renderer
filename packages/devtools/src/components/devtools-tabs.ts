@@ -38,7 +38,7 @@ export class DevtoolsTabs extends LitElement {
         display: flex;
         background: var(--dt-bg-panel);
         border-bottom: 1px solid var(--dt-border);
-        font-family: var(--dt-font-ui);
+        font-family: var(--dt-font-ui), sans-serif;
         font-size: var(--dt-font-size-sm);
       }
 
@@ -61,7 +61,7 @@ export class DevtoolsTabs extends LitElement {
         background: none;
         border: none;
         cursor: pointer;
-        font-family: var(--dt-font-ui);
+        font-family: var(--dt-font-ui), sans-serif;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-secondary);
         transition:

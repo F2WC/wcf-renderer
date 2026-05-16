@@ -26,7 +26,7 @@ export class PropsEditor extends LitElement {
         border-top: 1px dashed var(--dt-border);
         padding-top: var(--dt-space-2);
         margin-top: var(--dt-space-2);
-        font-family: var(--dt-font-ui);
+        font-family: var(--dt-font-ui), sans-serif;
         font-size: var(--dt-font-size-sm);
       }
 
@@ -69,7 +69,7 @@ export class PropsEditor extends LitElement {
         border: 1px solid var(--dt-border);
         border-radius: var(--dt-radius-xs);
         color: var(--dt-text-primary);
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         padding: 3px var(--dt-space-2);
         outline: none;
@@ -96,7 +96,7 @@ export class PropsEditor extends LitElement {
         border-radius: var(--dt-radius-xs);
         color: var(--dt-text-secondary);
         cursor: pointer;
-        font-family: var(--dt-font-ui);
+        font-family: var(--dt-font-ui), sans-serif;
         font-size: var(--dt-font-size-sm);
         line-height: 1;
         padding: 3px 7px;

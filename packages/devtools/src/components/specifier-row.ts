@@ -39,7 +39,7 @@ class SpecifierRow extends LitElement {
       }
 
       .row-id {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
       }

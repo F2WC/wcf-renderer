@@ -98,7 +98,7 @@ class DomTreePanel extends LitElement {
       }
 
       .route-path {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         color: var(--dt-text-primary);
         white-space: nowrap;
         overflow: hidden;
@@ -142,7 +142,7 @@ class DomTreePanel extends LitElement {
       }
 
       .tag-chip {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-accent);
         background: var(--dt-accent-dim);
@@ -198,7 +198,7 @@ class DomTreePanel extends LitElement {
       .entry-parent {
         padding: 0 8px 6px calc(8px + var(--depth-offset, 0px));
         font-size: var(--dt-font-size-xs);
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         color: var(--dt-text-muted);
         white-space: nowrap;
         overflow: hidden;
@@ -215,7 +215,7 @@ class DomTreePanel extends LitElement {
       }
 
       .instance-id {
-        font-family: var(--dt-font-mono);
+        font-family: var(--dt-font-mono), monospace;
         font-size: var(--dt-font-size-xs);
         color: var(--dt-text-muted);
         flex-shrink: 0;
