@@ -50,7 +50,7 @@ function describeError(error: unknown): { message: string; stack?: string } {
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function hasSeenPair(seen: WeakMap<object, WeakSet<object>>, left: object, right: object): boolean {
