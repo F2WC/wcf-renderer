@@ -30,9 +30,9 @@ import './events-panel.ts'
 import './overrides-panel.ts'
 
 const TAG = 'wcf-devtools'
-type MfeEventName = (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
-interface MfeEventListener {
-  type: MfeEventName
+type MFEEventName = (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
+interface MFEEventListener {
+  type: MFEEventName
   listener: (event: Event) => void
 }
 
@@ -162,7 +162,7 @@ class WcfDevtoolsPanel extends LitElement {
   #ghostApps = new Map<string, AppRegistryEntry>()
   #unsubLog: (() => void) | undefined
   #onKeydown: ((e: KeyboardEvent) => void) | undefined
-  #eventListeners: MfeEventListener[] = []
+  #eventListeners: MFEEventListener[] = []
 
   constructor() {
     super()
