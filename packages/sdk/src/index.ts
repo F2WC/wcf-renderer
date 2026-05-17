@@ -64,6 +64,13 @@ function markSeenPair(seen: WeakMap<object, WeakSet<object>>, left: object, righ
     seen.set(left, seenRights)
   }
   seenRights.add(right)
+
+  let seenLefts = seen.get(right)
+  if (!seenLefts) {
+    seenLefts = new WeakSet<object>()
+    seen.set(right, seenLefts)
+  }
+  seenLefts.add(left)
 }
 
 function deepEqual(a: unknown, b: unknown, seen = new WeakMap<object, WeakSet<object>>()): boolean {
@@ -108,10 +115,6 @@ function snapshotValue(value: unknown, seen = new WeakMap<object, unknown>()): u
     snapshot[key] = snapshotValue(entry, seen)
   }
   return snapshot
-}
-
-function snapshotProps(props: ComponentProps): ComponentProps {
-  return snapshotValue(props) as ComponentProps
 }
 
 function diffProps(
@@ -171,7 +174,7 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         eventBus.emit(MFE_EVENTS.REGISTERED, { id, name: options.name })
         try {
           appLifecycle = appFactory({ rootContainer, props })
-          lastProps = snapshotProps(props ?? {})
+          lastProps = snapshotValue(props ?? {}) as ComponentProps
           await appLifecycle.bootstrap?.()
         } catch (error) {
           setAppError(id, { phase: 'bootstrap', ...describeError(error), at: performance.now() })
@@ -244,7 +247,7 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         logger.debug(`Passed new props for MFE ${options.name} with id ${id}`)
         const changed = diffProps(lastProps, newProps)
         await appLifecycle.update(newProps)
-        lastProps = snapshotProps(newProps)
+        lastProps = snapshotValue(newProps) as ComponentProps
         if (Object.keys(changed).length > 0) {
           eventBus.emit(MFE_EVENTS.UPDATED, { id, name: options.name, changed })
         }
