@@ -276,12 +276,21 @@ class InstanceCard extends LitElement {
 
   #copyId = async () => {
     if (!this.instance?.id) return
-    await navigator.clipboard.writeText(this.instance.id)
-    this._copied = true
-    clearTimeout(this.#copiedTimer)
-    this.#copiedTimer = setTimeout(() => {
-      this._copied = false
-    }, 1200)
+    if (!navigator.clipboard?.writeText) {
+      console.warn('Clipboard API unavailable; unable to copy instance id')
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(this.instance.id)
+      this._copied = true
+      clearTimeout(this.#copiedTimer)
+      this.#copiedTimer = setTimeout(() => {
+        this._copied = false
+      }, 1200)
+    } catch (error) {
+      console.warn('Failed to copy instance id to clipboard', error)
+    }
   }
 
   #onMouseEnter = () => {
