@@ -30,9 +30,9 @@ import './events-panel.ts'
 import './overrides-panel.ts'
 
 const TAG = 'wcf-devtools'
-type MfeEventType = (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
+type MfeEventName = (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
 interface MfeEventListener {
-  type: MfeEventType
+  type: MfeEventName
   listener: (event: Event) => void
 }
 
