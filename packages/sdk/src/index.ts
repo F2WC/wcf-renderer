@@ -49,6 +49,42 @@ function describeError(error: unknown): { message: string; stack?: string } {
   return { message: String(error) }
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true
+
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false
+    return a.every((entry, index) => deepEqual(entry, b[index]))
+  }
+
+  if (isObject(a) && isObject(b)) {
+    const aKeys = Object.keys(a)
+    const bKeys = Object.keys(b)
+    if (aKeys.length !== bKeys.length) return false
+    return aKeys.every((key) => deepEqual(a[key], b[key]))
+  }
+
+  return false
+}
+
+function snapshotValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((entry) => snapshotValue(entry))
+  if (!isObject(value)) return value
+  const snapshot: Record<string, unknown> = {}
+  for (const [key, entry] of Object.entries(value)) {
+    snapshot[key] = snapshotValue(entry)
+  }
+  return snapshot
+}
+
+function snapshotProps(props: ComponentProps): ComponentProps {
+  return snapshotValue(props) as ComponentProps
+}
+
 function diffProps(
   previous: ComponentProps,
   next: ComponentProps,
@@ -56,7 +92,7 @@ function diffProps(
   const changed: Record<string, { from: unknown; to: unknown }> = {}
   const allKeys = new Set([...Object.keys(previous), ...Object.keys(next)])
   for (const key of allKeys) {
-    if (previous[key] !== next[key]) changed[key] = { from: previous[key], to: next[key] }
+    if (!deepEqual(previous[key], next[key])) changed[key] = { from: previous[key], to: next[key] }
   }
   return changed
 }
@@ -106,7 +142,7 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         eventBus.emit(MFE_EVENTS.REGISTERED, { id, name: options.name })
         try {
           appLifecycle = appFactory({ rootContainer, props })
-          lastProps = { ...(props ?? {}) }
+          lastProps = snapshotProps(props ?? {})
           await appLifecycle.bootstrap?.()
         } catch (error) {
           setAppError(id, { phase: 'bootstrap', ...describeError(error), at: performance.now() })
@@ -179,7 +215,7 @@ export default function createMfe(appFactory: AppFactory, options: Options): Mfe
         logger.debug(`Passed new props for MFE ${options.name} with id ${id}`)
         const changed = diffProps(lastProps, newProps)
         await appLifecycle.update(newProps)
-        lastProps = { ...newProps }
+        lastProps = snapshotProps(newProps)
         if (Object.keys(changed).length > 0) {
           eventBus.emit(MFE_EVENTS.UPDATED, { id, name: options.name, changed })
         }

@@ -301,4 +301,6 @@ class EventsPanel extends LitElement {
   }
 }
 
-customElements.define('wcf-events-panel', EventsPanel)
+if (!customElements.get('wcf-events-panel')) {
+  customElements.define('wcf-events-panel', EventsPanel)
+}

@@ -371,4 +371,6 @@ class DomTreePanel extends LitElement {
   }
 }
 
-customElements.define('wcf-dom-tree-panel', DomTreePanel)
+if (!customElements.get('wcf-dom-tree-panel')) {
+  customElements.define('wcf-dom-tree-panel', DomTreePanel)
+}

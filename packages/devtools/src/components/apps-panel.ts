@@ -140,4 +140,6 @@ class AppsPanel extends LitElement {
   }
 }
 
-customElements.define('wcf-apps-panel', AppsPanel)
+if (!customElements.get('wcf-apps-panel')) {
+  customElements.define('wcf-apps-panel', AppsPanel)
+}

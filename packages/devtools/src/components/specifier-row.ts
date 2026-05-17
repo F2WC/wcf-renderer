@@ -225,4 +225,6 @@ class SpecifierRow extends LitElement {
   }
 }
 
-customElements.define('wcf-specifier-row', SpecifierRow)
+if (!customElements.get('wcf-specifier-row')) {
+  customElements.define('wcf-specifier-row', SpecifierRow)
+}

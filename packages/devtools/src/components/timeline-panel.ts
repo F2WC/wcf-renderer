@@ -275,4 +275,6 @@ class TimelinePanel extends LitElement {
   }
 }
 
-customElements.define('wcf-timeline-panel', TimelinePanel)
+if (!customElements.get('wcf-timeline-panel')) {
+  customElements.define('wcf-timeline-panel', TimelinePanel)
+}

@@ -125,4 +125,6 @@ export class DevtoolsHeader extends LitElement {
   }
 }
 
-customElements.define('wcf-devtools-header', DevtoolsHeader)
+if (!customElements.get('wcf-devtools-header')) {
+  customElements.define('wcf-devtools-header', DevtoolsHeader)
+}

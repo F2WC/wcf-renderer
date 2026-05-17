@@ -198,4 +198,6 @@ class OverridesPanel extends LitElement {
   }
 }
 
-customElements.define('wcf-overrides-panel', OverridesPanel)
+if (!customElements.get('wcf-overrides-panel')) {
+  customElements.define('wcf-overrides-panel', OverridesPanel)
+}

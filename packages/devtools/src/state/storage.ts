@@ -38,11 +38,18 @@ function writeJSON(key: string, value: unknown): void {
   }
 }
 
+function isStringRecord(value: unknown): value is ImportmapOverrides {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+  return Object.values(value).every((entry) => typeof entry === 'string')
+}
+
 export function getOverrides(): ImportmapOverrides {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.overrides)
     if (!raw) return {}
-    return JSON.parse(raw) as ImportmapOverrides
+    const parsed: unknown = JSON.parse(raw)
+    if (!isStringRecord(parsed)) return {}
+    return parsed
   } catch {
     return {}
   }

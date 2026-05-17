@@ -456,4 +456,6 @@ class InstanceCard extends LitElement {
   }
 }
 
-customElements.define('wcf-instance-card', InstanceCard)
+if (!customElements.get('wcf-instance-card')) {
+  customElements.define('wcf-instance-card', InstanceCard)
+}

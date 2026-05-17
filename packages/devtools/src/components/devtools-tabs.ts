@@ -156,4 +156,6 @@ export class DevtoolsTabs extends LitElement {
   }
 }
 
-customElements.define('wcf-devtools-tabs', DevtoolsTabs)
+if (!customElements.get('wcf-devtools-tabs')) {
+  customElements.define('wcf-devtools-tabs', DevtoolsTabs)
+}

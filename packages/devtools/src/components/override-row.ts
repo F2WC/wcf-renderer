@@ -179,4 +179,6 @@ export class OverrideRow extends LitElement {
   }
 }
 
-customElements.define('wcf-override-row', OverrideRow)
+if (!customElements.get('wcf-override-row')) {
+  customElements.define('wcf-override-row', OverrideRow)
+}

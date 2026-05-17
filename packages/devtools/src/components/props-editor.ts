@@ -224,4 +224,6 @@ export class PropsEditor extends LitElement {
   }
 }
 
-customElements.define('wcf-props-editor', PropsEditor)
+if (!customElements.get('wcf-props-editor')) {
+  customElements.define('wcf-props-editor', PropsEditor)
+}
