@@ -53,19 +53,32 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function deepEqual(a: unknown, b: unknown, seen = new WeakMap<object, object>()): boolean {
+function hasSeenPair(seen: WeakMap<object, WeakSet<object>>, left: object, right: object): boolean {
+  return seen.get(left)?.has(right) ?? false
+}
+
+function markSeenPair(seen: WeakMap<object, WeakSet<object>>, left: object, right: object): void {
+  let seenRights = seen.get(left)
+  if (!seenRights) {
+    seenRights = new WeakSet<object>()
+    seen.set(left, seenRights)
+  }
+  seenRights.add(right)
+}
+
+function deepEqual(a: unknown, b: unknown, seen = new WeakMap<object, WeakSet<object>>()): boolean {
   if (Object.is(a, b)) return true
 
   if (Array.isArray(a) && Array.isArray(b)) {
-    if (seen.get(a) === b) return true
-    seen.set(a, b)
+    if (hasSeenPair(seen, a, b)) return true
+    markSeenPair(seen, a, b)
     if (a.length !== b.length) return false
     return a.every((entry, index) => deepEqual(entry, b[index], seen))
   }
 
   if (isObject(a) && isObject(b)) {
-    if (seen.get(a) === b) return true
-    seen.set(a, b)
+    if (hasSeenPair(seen, a, b)) return true
+    markSeenPair(seen, a, b)
     const aKeys = Object.keys(a)
     const bKeys = Object.keys(b)
     if (aKeys.length !== bKeys.length) return false
@@ -81,7 +94,9 @@ function snapshotValue(value: unknown, seen = new WeakMap<object, unknown>()): u
     if (existing) return existing
     const snapshot: unknown[] = []
     seen.set(value, snapshot)
-    snapshot.push(...value.map((entry) => snapshotValue(entry, seen)))
+    for (const entry of value) {
+      snapshot.push(snapshotValue(entry, seen))
+    }
     return snapshot
   }
   if (!isObject(value)) return value
