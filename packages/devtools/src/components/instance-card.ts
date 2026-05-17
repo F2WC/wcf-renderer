@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit'
+import { LitElement, html, css, type PropertyValues } from 'lit'
 import { AppRegistryEntry, WcfHostElement } from 'web-component-framework-renderer-sdk'
 import { tokens } from '../styles/tokens.css.ts'
 import { reset } from '../styles/reset.css.ts'
@@ -243,22 +243,43 @@ class InstanceCard extends LitElement {
     element: { type: Object },
     instance: { type: Object },
     _copied: { state: true },
+    _props: { state: true },
   }
 
   declare element: WcfHostElement | undefined
   declare instance: AppRegistryEntry | undefined
   declare _copied: boolean
+  declare _props: Record<string, string>
+
+  #copiedTimer: ReturnType<typeof setTimeout> | undefined
 
   constructor() {
     super()
     this._copied = false
+    this._props = {}
+  }
+
+  updated(changed: PropertyValues): void {
+    if (changed.has('element')) {
+      this._props = this.element ? readPropsFromElement(this.element) : {}
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    clearTimeout(this.#copiedTimer)
+  }
+
+  #refreshProps = () => {
+    if (this.element) this._props = readPropsFromElement(this.element)
   }
 
   #copyId = async () => {
     if (!this.instance?.id) return
     await navigator.clipboard.writeText(this.instance.id)
     this._copied = true
-    setTimeout(() => {
+    clearTimeout(this.#copiedTimer)
+    this.#copiedTimer = setTimeout(() => {
       this._copied = false
     }, 1200)
   }
@@ -293,8 +314,6 @@ class InstanceCard extends LitElement {
       inst.registeredAt && inst.bootstrappedAt ? inst.bootstrappedAt - inst.registeredAt : undefined
     const mountMs =
       inst.bootstrappedAt && inst.mountedAt ? inst.mountedAt - inst.bootstrappedAt : undefined
-    const unmountMs =
-      inst.mountedAt && inst.unmountedAt ? inst.unmountedAt - inst.mountedAt : undefined
 
     const regClass = 'done'
     const bootClass =
@@ -366,7 +385,14 @@ class InstanceCard extends LitElement {
     const status = inst?.unmountedAt ? 'unmounted' : (inst?.status ?? 'registered')
 
     return html`
-      <div class="instance" @mouseenter=${this.#onMouseEnter} @mouseleave=${this.#onMouseLeave}>
+      <div
+        class="instance"
+        @mouseenter=${this.#onMouseEnter}
+        @mouseleave=${this.#onMouseLeave}
+        @wcf:prop-edit=${this.#refreshProps}
+        @wcf:prop-remove=${this.#refreshProps}
+        @wcf:prop-add=${this.#refreshProps}
+      >
         <div class="instance-head">
           ${inst ? html`<span class="badge ${status}">${status}</span>` : ''}
           <span class="short-id">${id}</span>
@@ -412,7 +438,7 @@ class InstanceCard extends LitElement {
               <wcf-props-editor
                 .element=${this.element}
                 .supportsUpdate=${inst.supportsUpdate}
-                .props=${readPropsFromElement(this.element)}
+                .props=${this._props}
               ></wcf-props-editor>
             `
           : ''}

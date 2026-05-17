@@ -180,7 +180,7 @@ class WcfDevtoolsPanel extends LitElement {
       if (type === 'MFE:UNMOUNTED' && detail?.id) {
         const existing = this.apps.find((a) => a.id === detail.id)
         if (existing) {
-          this.#ghostApps.set(existing.id, { ...existing, unmountedAt: performance.now() })
+          this.#ghostApps.set(existing.id, { ...existing, unmountedAt: existing.unmountedAt ?? performance.now() })
         }
       }
 
@@ -299,7 +299,12 @@ class WcfDevtoolsPanel extends LitElement {
 
   #onRemount = (e: Event) => {
     const { element } = (e as CustomEvent<{ element: WcfHostElement }>).detail
-    void element.unmountLifecycle().then(() => element.mountLifecycle())
+    void element
+      .unmountLifecycle()
+      .then(() => element.mountLifecycle())
+      .catch((err: unknown) => {
+        console.error('[wcf-devtools] remount failed', err)
+      })
   }
 
   #onPropEdit = (e: Event) => {
