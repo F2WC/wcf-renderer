@@ -40,7 +40,7 @@ function writeJSON(key: string, value: unknown): void {
 
 function isStringRecord(value: unknown): value is ImportmapOverrides {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
-  return Object.values(value).every((entry) => typeof entry === 'string')
+  return Object.entries(value).every(([key, entry]) => typeof key === 'string' && typeof entry === 'string')
 }
 
 export function getOverrides(): ImportmapOverrides {
