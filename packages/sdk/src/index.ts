@@ -53,30 +53,44 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function deepEqual(a: unknown, b: unknown): boolean {
+function deepEqual(a: unknown, b: unknown, seen = new WeakMap<object, object>()): boolean {
   if (Object.is(a, b)) return true
 
   if (Array.isArray(a) && Array.isArray(b)) {
+    if (seen.get(a) === b) return true
+    seen.set(a, b)
     if (a.length !== b.length) return false
-    return a.every((entry, index) => deepEqual(entry, b[index]))
+    return a.every((entry, index) => deepEqual(entry, b[index], seen))
   }
 
   if (isObject(a) && isObject(b)) {
+    if (seen.get(a) === b) return true
+    seen.set(a, b)
     const aKeys = Object.keys(a)
     const bKeys = Object.keys(b)
     if (aKeys.length !== bKeys.length) return false
-    return aKeys.every((key) => key in b && deepEqual(a[key], b[key]))
+    return aKeys.every((key) => key in b && deepEqual(a[key], b[key], seen))
   }
 
   return false
 }
 
-function snapshotValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map((entry) => snapshotValue(entry))
+function snapshotValue(value: unknown, seen = new WeakMap<object, unknown>()): unknown {
+  if (Array.isArray(value)) {
+    const existing = seen.get(value)
+    if (existing) return existing
+    const snapshot: unknown[] = []
+    seen.set(value, snapshot)
+    snapshot.push(...value.map((entry) => snapshotValue(entry, seen)))
+    return snapshot
+  }
   if (!isObject(value)) return value
+  const existing = seen.get(value)
+  if (existing) return existing
   const snapshot: Record<string, unknown> = {}
+  seen.set(value, snapshot)
   for (const [key, entry] of Object.entries(value)) {
-    snapshot[key] = snapshotValue(entry)
+    snapshot[key] = snapshotValue(entry, seen)
   }
   return snapshot
 }
