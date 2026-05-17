@@ -157,6 +157,10 @@ class WcfDevtoolsPanel extends LitElement {
   #ghostApps = new Map<string, AppRegistryEntry>()
   #unsubLog: (() => void) | undefined
   #onKeydown: ((e: KeyboardEvent) => void) | undefined
+  #eventListeners: {
+    type: (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
+    listener: (event: Event) => void
+  }[] = []
 
   constructor() {
     super()
@@ -212,11 +216,16 @@ class WcfDevtoolsPanel extends LitElement {
       }
     }
 
-    eventBus.on(MFE_EVENTS.REGISTERED, handle('MFE:REGISTERED'))
-    eventBus.on(MFE_EVENTS.BOOTSTRAPPED, handle('MFE:BOOTSTRAPPED'))
-    eventBus.on(MFE_EVENTS.MOUNTED, handle('MFE:MOUNTED'))
-    eventBus.on(MFE_EVENTS.UPDATED, handle('MFE:UPDATED'))
-    eventBus.on(MFE_EVENTS.UNMOUNTED, handle('MFE:UNMOUNTED'))
+    this.#eventListeners = [
+      { type: MFE_EVENTS.REGISTERED, listener: handle('MFE:REGISTERED') },
+      { type: MFE_EVENTS.BOOTSTRAPPED, listener: handle('MFE:BOOTSTRAPPED') },
+      { type: MFE_EVENTS.MOUNTED, listener: handle('MFE:MOUNTED') },
+      { type: MFE_EVENTS.UPDATED, listener: handle('MFE:UPDATED') },
+      { type: MFE_EVENTS.UNMOUNTED, listener: handle('MFE:UNMOUNTED') },
+    ]
+    this.#eventListeners.forEach(({ type, listener }) => {
+      eventBus.on(type, listener)
+    })
 
     this.#unsubLog = this.#log.subscribe(() => {
       this.events = [...this.#log.entries()]
@@ -234,7 +243,13 @@ class WcfDevtoolsPanel extends LitElement {
   disconnectedCallback(): void {
     super.disconnectedCallback()
     this.#unsubLog?.()
+    this.#unsubLog = undefined
+    this.#eventListeners.forEach(({ type, listener }) => {
+      eventBus.off(type, listener)
+    })
+    this.#eventListeners = []
     if (this.#onKeydown) document.removeEventListener('keydown', this.#onKeydown)
+    this.#onKeydown = undefined
   }
 
   #applyPosition(): void {
