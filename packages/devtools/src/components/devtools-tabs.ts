@@ -47,7 +47,7 @@ export class DevtoolsTabs extends LitElement {
         position: absolute;
         bottom: 0;
         left: var(--tab-offset, 0%);
-        width: 20%;
+        width: ${100 / TABS.length}%;
         height: 2px;
         background: var(--dt-accent);
         border-radius: var(--dt-radius-pill) var(--dt-radius-pill) 0 0;
