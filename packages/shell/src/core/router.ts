@@ -1,19 +1,26 @@
 import { match } from 'path-to-regexp'
+import type {ComponentProps} from 'web-component-framework-renderer-sdk'
 
 export interface Route {
   path: string
   name: string
-  widgets?: string[]
-  beforeEnter?: () => void
-  afterEnter?: () => void
+  props?: ComponentProps
+  beforeEnter?: () => Promise<void>
+  afterEnter?: () => Promise<void>
   children?: Route[]
 }
 
 export type Routes = Route[]
 
-const handleMfe = (mfe: string) => {
+const handleMfe = (route: Route) => {
   const element = document.createElement('wcf-mfe')
-  element.setAttribute('data-mfe-name', mfe)
+  element.setAttribute('data-mfe-name', route.name)
+  if(route.props) {
+    Object.entries(route.props).forEach(([key, value]) => {
+      if(typeof value === 'object') value = JSON.stringify(value)
+      element.setAttribute(`data-prop-${key}`, value)
+    })
+  }
   document.body.appendChild(element)
 }
 
@@ -46,11 +53,11 @@ const handleRoutes = async (routes: Routes, basePath = '') => {
       continue
     }
 
-    route.beforeEnter?.()
+    await route.beforeEnter?.()
 
-    handleMfe(route.name)
+    handleMfe(route)
 
-    route.afterEnter?.()
+    await route.afterEnter?.()
     return
   }
 

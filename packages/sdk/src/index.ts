@@ -31,15 +31,7 @@ import {
 export { registerMfeComponent, registerWidgetComponent }
 
 // Re-export types and EventBus for public API
-export type {
-  MaybePromise,
-  ExternalLifecycleFunctions,
-  MfeFactory,
-  MfeFactoryOptions,
-  AppStatus,
-  AppRegistryEntry,
-  AppRegistryError,
-} from '@/types/index.js'
+export type * from '@/types/index.js'
 export type { WcfHostElement } from '@/components/wcf-component.js'
 export { eventBus, MFE_EVENTS }
 export { getMountedApps, getAllApps, getAppStatus, getAppNames }

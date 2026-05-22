@@ -6,7 +6,7 @@
     "playground/*"
   ],
   "scripts": {
-    "dev": "docker-compose up --build",
+    "dev": "docker compose up --build",
     "build": "lerna run build",
     "test": "lerna run test",
     "test:watch": "lerna run test:watch",

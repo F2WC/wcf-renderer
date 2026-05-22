@@ -1,3 +1,13 @@
-import { getMountedApps, getAppStatus, getAppNames } from 'web-component-framework-renderer-sdk'
+import { createRouter } from 'web-component-framework-renderer-shell'
 
-(window as any).__wcf = { getMountedApps, getAppStatus, getAppNames }
+await createRouter([
+    {
+        name: '@mf/vue',
+        path: '/',
+        props: { msg: 'Hello Vue!' },
+    },
+    {
+        name: '@mf/vue',
+        path: '/about',
+    }
+])
