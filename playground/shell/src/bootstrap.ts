@@ -9,6 +9,8 @@ const devtools = devtoolsEnabled
 
 await initialize({ transformImportmap: devtools?.installImportmapHook() })
 
+devtools?.mountDevtools()
+
 await import('./index.ts')
 
-devtools?.mountDevtools()
+

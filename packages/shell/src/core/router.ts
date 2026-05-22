@@ -1,5 +1,6 @@
 import { match } from 'path-to-regexp'
-import type {ComponentProps} from 'web-component-framework-renderer-sdk'
+import type { ComponentProps } from 'web-component-framework-renderer-sdk'
+import { setRoutes, isDevtools } from 'web-component-framework-renderer-devtools'
 
 export interface Route {
   path: string
@@ -15,9 +16,9 @@ export type Routes = Route[]
 const handleMfe = (route: Route) => {
   const element = document.createElement('wcf-mfe')
   element.setAttribute('data-mfe-name', route.name)
-  if(route.props) {
+  if (route.props) {
     Object.entries(route.props).forEach(([key, value]) => {
-      if(typeof value === 'object') value = JSON.stringify(value)
+      if (typeof value === 'object') value = JSON.stringify(value)
       element.setAttribute(`data-prop-${key}`, value)
     })
   }
@@ -65,6 +66,10 @@ const handleRoutes = async (routes: Routes, basePath = '') => {
 }
 
 export default async (routes: Routes) => {
+  if (isDevtools()) {
+    setRoutes(routes)
+  }
+
   try {
     await handleRoutes(routes)
   } catch (e) {
