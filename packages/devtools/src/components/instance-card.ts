@@ -276,10 +276,6 @@ class InstanceCard extends LitElement {
 
   #copyId = async () => {
     if (!this.instance?.id) return
-    if (!navigator.clipboard?.writeText) {
-      console.warn('Clipboard API unavailable; unable to copy instance id')
-      return
-    }
 
     try {
       await navigator.clipboard.writeText(this.instance.id)

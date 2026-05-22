@@ -29,12 +29,9 @@ import './dom-tree-panel.ts'
 import './events-panel.ts'
 import './overrides-panel.ts'
 
+import type { MFEEventListener } from '../types/devtools-panel.ts'
+
 const TAG = 'wcf-devtools'
-type MFEEventName = (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
-interface MFEEventListener {
-  type: MFEEventName
-  listener: (event: Event) => void
-}
 
 class WcfDevtoolsPanel extends LitElement {
   static styles = [
@@ -186,7 +183,10 @@ class WcfDevtoolsPanel extends LitElement {
       if (type === 'MFE:UNMOUNTED' && detail?.id) {
         const existing = this.apps.find((a) => a.id === detail.id)
         if (existing) {
-          this.#ghostApps.set(existing.id, { ...existing, unmountedAt: existing.unmountedAt ?? performance.now() })
+          this.#ghostApps.set(existing.id, {
+            ...existing,
+            unmountedAt: existing.unmountedAt ?? performance.now(),
+          })
         }
       }
 
@@ -459,7 +459,9 @@ class WcfDevtoolsPanel extends LitElement {
               ></wcf-apps-panel>`
             : nothing}
           ${this.ui.panel === 'timeline'
-            ? html`<wcf-timeline-panel .apps=${this.apps.filter((a) => !a.unmountedAt)}></wcf-timeline-panel>`
+            ? html`<wcf-timeline-panel
+                .apps=${this.apps.filter((a) => !a.unmountedAt)}
+              ></wcf-timeline-panel>`
             : nothing}
           ${this.ui.panel === 'dom-tree'
             ? html`<wcf-dom-tree-panel .apps=${this.apps}></wcf-dom-tree-panel>`

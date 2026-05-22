@@ -4,14 +4,7 @@ import { tokens } from '../styles/tokens.css.js'
 import { reset } from '../styles/reset.css.js'
 import { highlightElement, clearHighlight } from '../utils/dom.js'
 import { shortId } from '../utils/format.js'
-
-interface DomEntry {
-  element: WcfHostElement
-  specifier: string
-  wcfDepth: number
-  wcfParent: WcfHostElement | undefined
-  instance: AppRegistryEntry | undefined
-}
+import type { DomEntry } from '../types/dom-tree-panel.ts'
 
 function getWcfAncestors(
   el: WcfHostElement,
