@@ -1,0 +1,89 @@
+:host {
+  /* Surfaces */
+  --dt-bg-base: #060b14;
+  --dt-bg-panel: #0b1422;
+  --dt-bg-header: #08111e;
+  --dt-bg-row: #0f1d30;
+  --dt-bg-input: #060b14;
+  --dt-bg-chip: #162035;
+
+  /* Borders */
+  --dt-border: #1a2d46;
+  --dt-border-subtle: #111e33;
+  --dt-border-focus: #4d8bff;
+
+  /* Text */
+  --dt-text-primary: #dde4f0;
+  --dt-text-secondary: #5e7399;
+  --dt-text-muted: #2e4060;
+
+  /* Accent */
+  --dt-accent: #4d8bff;
+  --dt-accent-dim: rgba(77, 139, 255, 0.18);
+  --dt-accent-glow: rgba(77, 139, 255, 0.08);
+
+  /* Status colours */
+  --dt-c-registered-bg: #2a4a7a;
+  --dt-c-registered-text: #93c5fd;
+  --dt-c-bootstrapped-bg: #1e3d7a;
+  --dt-c-bootstrapped-text: #bfdbfe;
+  --dt-c-mounted-bg: #0e3d26;
+  --dt-c-mounted-text: #6ee7b7;
+  --dt-c-available-bg: #221c50;
+  --dt-c-available-text: #c4b5fd;
+  --dt-c-unmounted-bg: #2a1500;
+  --dt-c-unmounted-text: #fdba74;
+  --dt-c-updated-bg: #2a1f00;
+  --dt-c-updated-text: #fbbf24;
+  --dt-c-error-bg: #3d0d0d;
+  --dt-c-error-text: #fca5a5;
+
+  /* Semantic */
+  --dt-warn-bg: #3a1a00;
+  --dt-warn-text: #fbbf24;
+  --dt-warn-border: #78350f;
+  --dt-danger-bg: #3d0d0d;
+  --dt-danger-border: #7f1d1d;
+  --dt-danger-text: #fecaca;
+
+  /* Diff */
+  --dt-diff-from: #fca5a5;
+  --dt-diff-to: #86efac;
+  --dt-diff-key: #cbd5e1;
+
+  /* Motion */
+  --dt-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dt-dur-xs: 80ms;
+  --dt-dur-sm: 140ms;
+  --dt-dur-md: 240ms;
+
+  /* Geometry */
+  --dt-radius-xs: 3px;
+  --dt-radius-sm: 5px;
+  --dt-radius-md: 8px;
+  --dt-radius-lg: 12px;
+  --dt-radius-pill: 999px;
+  --dt-space-1: 4px;
+  --dt-space-2: 8px;
+  --dt-space-3: 12px;
+  --dt-space-4: 16px;
+  --dt-space-5: 20px;
+
+  /* Panel dimensions */
+  --dt-panel-width: 540px;
+  --dt-panel-max-height: 72vh;
+
+  /* Typography */
+  --dt-font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --dt-font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --dt-font-size-base: 12px;
+  --dt-font-size-sm: 11px;
+  --dt-font-size-xs: 10px;
+  --dt-line-height: 1.5;
+
+  /* Shadows */
+  --dt-shadow-toggle: 0 4px 16px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --dt-shadow-panel:
+    0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}

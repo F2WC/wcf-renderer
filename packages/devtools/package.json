@@ -1,0 +1,45 @@
+{
+  "name": "web-component-framework-renderer-devtools",
+  "version": "0.0.0",
+  "description": "In-page devtools panel for inspecting WCF micro-frontends and widgets",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "./src/components/**/*.ts",
+    "./dist/**/*.js",
+    "./dist/**/*.cjs"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "micro-frontend",
+    "web-components",
+    "devtools"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.0.15",
+    "typescript": "^5.8.3",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "dependencies": {
+    "lit": "^3.2.0",
+    "web-component-framework-renderer-sdk": "file:../../packages/sdk"
+  }
+}
