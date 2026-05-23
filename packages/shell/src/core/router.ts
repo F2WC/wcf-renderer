@@ -1,19 +1,40 @@
-import { match } from 'path-to-regexp'
+import { match, type ParamData } from 'path-to-regexp'
+import type { ComponentProps } from 'web-component-framework-renderer-sdk'
+
+export type MaybePromise<T> = T | Promise<T>
 
 export interface Route {
   path: string
   name: string
-  widgets?: string[]
-  beforeEnter?: () => void
-  afterEnter?: () => void
+  props?: ComponentProps
+  beforeEnter?: (
+    route: Omit<Route, 'beforeEnter' | 'afterEnter' | 'children'>,
+    paramData: ParamData,
+  ) => MaybePromise<void>
+  afterEnter?: (
+    route: Omit<Route, 'beforeEnter' | 'afterEnter' | 'children'>,
+    paramData: ParamData,
+  ) => MaybePromise<void>
   children?: Route[]
 }
 
 export type Routes = Route[]
 
-const handleMfe = (mfe: string) => {
+const handleMfe = (route: Route, paramData: ParamData) => {
   const element = document.createElement('wcf-mfe')
-  element.setAttribute('data-mfe-name', mfe)
+  element.setAttribute('data-mfe-name', route.name)
+  Object.entries(paramData).forEach(([key, value]) => {
+    if (Array.isArray(value)) value = JSON.stringify(value)
+    if (value) element.setAttribute(`data-prop-${key}`, value)
+  })
+
+  // Props have a higher priority than params, meaning if the same value is present in both, the prop wins.
+  if (route.props) {
+    Object.entries(route.props).forEach(([key, value]) => {
+      if (typeof value === 'object') value = JSON.stringify(value)
+      element.setAttribute(`data-prop-${key}`, value)
+    })
+  }
   document.body.appendChild(element)
 }
 
@@ -29,8 +50,6 @@ const handleRoutes = async (routes: Routes, basePath = '') => {
     const matchFn = match(fullPath, { end: !route.children })
     const result = matchFn(window.location.pathname)
 
-    if (!result) continue
-
     if (route.children) {
       try {
         await handleRoutes(route.children, fullPath)
@@ -40,17 +59,24 @@ const handleRoutes = async (routes: Routes, basePath = '') => {
       }
     }
 
+    if (!result) continue
+
     // If it's an exact match or children didn't match but this route matches (and we are here)
     const exactMatchFn = match(fullPath, { end: true })
     if (!exactMatchFn(window.location.pathname)) {
       continue
     }
 
-    route.beforeEnter?.()
+    const strippedRoute = { ...route }
+    delete strippedRoute.children
+    delete strippedRoute.beforeEnter
+    delete strippedRoute.afterEnter
 
-    handleMfe(route.name)
+    await route.beforeEnter?.(strippedRoute, result.params)
 
-    route.afterEnter?.()
+    handleMfe(route, result.params)
+
+    await route.afterEnter?.(strippedRoute, result.params)
     return
   }
 

@@ -53,14 +53,14 @@ export interface ComponentAttributes {
 /**
  * Generic props bag passed from the AppShell to the MFE.
  */
-export type ComponentProps = Record<string, unknown>
+export type ComponentProps = Record<string, string | object>
 
 /**
  * Options provided by the AppShell when instantiating the MFE via `appFactory`.
  */
 export interface CreateMfeOptions {
   rootContainer: HTMLElement
-  props?: Record<string, unknown>
+  props?: ComponentProps
 }
 
 /**
