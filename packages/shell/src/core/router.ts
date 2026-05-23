@@ -7,8 +7,14 @@ export interface Route {
   path: string
   name: string
   props?: ComponentProps
-  beforeEnter?: (route: Omit<Route, 'beforeEnter' | 'afterEnter' | 'children'>, paramData: ParamData) => MaybePromise<void>
-  afterEnter?: (route: Omit<Route, 'beforeEnter' | 'afterEnter' | 'children'>, paramData: ParamData) => MaybePromise<void>
+  beforeEnter?: (
+    route: Omit<Route, 'beforeEnter' | 'afterEnter' | 'children'>,
+    paramData: ParamData,
+  ) => MaybePromise<void>
+  afterEnter?: (
+    route: Omit<Route, 'beforeEnter' | 'afterEnter' | 'children'>,
+    paramData: ParamData,
+  ) => MaybePromise<void>
   children?: Route[]
 }
 
@@ -19,8 +25,7 @@ const handleMfe = (route: Route, paramData: ParamData) => {
   element.setAttribute('data-mfe-name', route.name)
   Object.entries(paramData).forEach(([key, value]) => {
     if (Array.isArray(value)) value = JSON.stringify(value)
-    if (value)
-      element.setAttribute(`data-prop-${key}`, value)
+    if (value) element.setAttribute(`data-prop-${key}`, value)
   })
 
   // Props have a higher priority than params, meaning if the same value is present in both, the prop wins.
@@ -62,7 +67,7 @@ const handleRoutes = async (routes: Routes, basePath = '') => {
       continue
     }
 
-    const strippedRoute = {...route}
+    const strippedRoute = { ...route }
     delete strippedRoute.children
     delete strippedRoute.beforeEnter
     delete strippedRoute.afterEnter
