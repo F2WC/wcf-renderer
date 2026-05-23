@@ -1,3 +1,7 @@
 export type { Panel } from './devtools-tabs.ts'
 export type { DomEntry } from './dom-tree-panel.ts'
 export type { MFEEventName, MFEEventListener } from './devtools-panel.ts'
+export type { LogEventType, LogEntry } from './event-log.ts'
+export type { ImportmapOverrides, UiState } from './storage.ts'
+export type { Importmap } from './importmap-hook.ts'
+export type { Route, MountDevtoolsOptions } from './public-api.ts'

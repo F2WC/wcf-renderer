@@ -1,16 +1,10 @@
+import type { ImportmapOverrides, UiState } from '@/types/storage.ts'
+
 export const STORAGE_KEYS = {
   enable: 'wcf:devtools',
   overrides: 'wcf:devtools:importmap-overrides',
   ui: 'wcf:devtools:ui',
 } as const
-
-export type ImportmapOverrides = Record<string, string>
-
-export interface UiState {
-  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
-  collapsed: boolean
-  panel: 'apps' | 'timeline' | 'dom-tree' | 'events' | 'overrides'
-}
 
 const DEFAULT_UI: UiState = {
   position: 'bottom-right',

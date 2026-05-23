@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
 
 export class PropsEditor extends LitElement {
   static properties = {

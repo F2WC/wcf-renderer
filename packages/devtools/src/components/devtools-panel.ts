@@ -5,20 +5,14 @@ import {
   getAllApps,
   type AppRegistryEntry,
 } from 'web-component-framework-renderer-sdk'
-import { EventLog, type LogEntry } from '../state/event-log.ts'
-import { getBaseImports } from '../importmap-hook.ts'
-import {
-  getOverrides,
-  setOverrides,
-  getUiState,
-  setUiState,
-  resetAll,
-  type ImportmapOverrides,
-  type UiState,
-} from '../state/storage.ts'
-import { editProp, removeProp, addProp } from '../utils/props.ts'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
+import { EventLog } from '@/state/event-log.ts'
+import { getBaseImports } from '@/importmap-hook.ts'
+import { getOverrides, setOverrides, getUiState, setUiState, resetAll } from '@/state/storage.ts'
+import type { LogEntry } from '@/types/event-log.ts'
+import type { ImportmapOverrides, UiState } from '@/types/storage.ts'
+import { editProp, removeProp, addProp } from '@/utils/props.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
 import type { WcfHostElement } from 'web-component-framework-renderer-sdk'
 
 import './devtools-header.ts'
@@ -29,7 +23,7 @@ import './dom-tree-panel.ts'
 import './events-panel.ts'
 import './overrides-panel.ts'
 
-import type { MFEEventListener } from '../types/devtools-panel.ts'
+import type { MFEEventListener } from '@/types/devtools-panel.ts'
 
 const TAG = 'wcf-devtools'
 

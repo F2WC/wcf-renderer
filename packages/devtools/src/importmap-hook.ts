@@ -1,9 +1,5 @@
-import { getOverrides } from './state/storage.ts'
-
-interface Importmap {
-  imports?: Record<string, string>
-  scopes?: Record<string, Record<string, string>>
-}
+import { getOverrides } from '@/state/storage.ts'
+import type { Importmap } from '@/types/index.ts'
 
 let baseImports: Record<string, string> = {}
 
