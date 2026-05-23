@@ -9,7 +9,8 @@ await createRouter([
             {
                 name: '@mf/vue',
                 path: '/child/:msg',
-                beforeEnter: (paramData) => {
+                beforeEnter: (route, paramData) => {
+                    console.log('Before entering child route with route:', route)
                     console.log('Before entering child route with params:', paramData)
                 }
             }
