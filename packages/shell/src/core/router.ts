@@ -1,6 +1,5 @@
 import { match } from 'path-to-regexp'
 import type { ComponentProps } from 'web-component-framework-renderer-sdk'
-import { setRoutes, isDevtools } from 'web-component-framework-renderer-devtools'
 
 export interface Route {
   path: string
@@ -66,10 +65,6 @@ const handleRoutes = async (routes: Routes, basePath = '') => {
 }
 
 export default async (routes: Routes) => {
-  if (isDevtools()) {
-    setRoutes(routes)
-  }
-
   try {
     await handleRoutes(routes)
   } catch (e) {
