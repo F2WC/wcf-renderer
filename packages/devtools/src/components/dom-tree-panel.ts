@@ -1,17 +1,10 @@
 import { LitElement, html, css } from 'lit'
 import type { AppRegistryEntry, WcfHostElement } from 'web-component-framework-renderer-sdk'
-import { tokens } from '../styles/tokens.css.js'
-import { reset } from '../styles/reset.css.js'
-import { highlightElement, clearHighlight } from '../utils/dom.js'
-import { shortId } from '../utils/format.js'
-
-interface DomEntry {
-  element: WcfHostElement
-  specifier: string
-  wcfDepth: number
-  wcfParent: WcfHostElement | undefined
-  instance: AppRegistryEntry | undefined
-}
+import { tokens } from '@/styles/tokens.css.js'
+import { reset } from '@/styles/reset.css.js'
+import { highlightElement, clearHighlight } from '@/utils/dom.js'
+import { shortId } from '@/utils/format.js'
+import type { DomEntry } from '@/types/dom-tree-panel.ts'
 
 function getWcfAncestors(
   el: WcfHostElement,

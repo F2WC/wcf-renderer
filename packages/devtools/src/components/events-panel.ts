@@ -1,8 +1,8 @@
 import { LitElement, html, css } from 'lit'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
-import { formatWallTime, shortId, renderEventSummary } from '../utils/format.ts'
-import { LogEntry } from '../state/event-log.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
+import { formatWallTime, shortId, renderEventSummary } from '@/utils/format.ts'
+import type { LogEntry } from '@/types/event-log.ts'
 
 class EventsPanel extends LitElement {
   static styles = [

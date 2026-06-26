@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
-import { ImportmapOverrides } from '../state/storage.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
+import type { ImportmapOverrides } from '@/types/storage.ts'
 import './override-row.ts'
 
 class OverridesPanel extends LitElement {

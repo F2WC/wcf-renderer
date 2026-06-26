@@ -1,10 +1,10 @@
 import { LitElement, html, css } from 'lit'
 import { AppRegistryEntry } from 'web-component-framework-renderer-sdk'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
-import { ImportmapOverrides } from '../state/storage.ts'
-import { findElementsForSpecifier } from '../utils/dom.ts'
-import { getBaseImports } from '../importmap-hook.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
+import type { ImportmapOverrides } from '@/types/storage.ts'
+import { findElementsForSpecifier } from '@/utils/dom.ts'
+import { getBaseImports } from '@/importmap-hook.ts'
 import './specifier-row.ts'
 
 class AppsPanel extends LitElement {

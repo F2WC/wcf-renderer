@@ -5,20 +5,14 @@ import {
   getAllApps,
   type AppRegistryEntry,
 } from 'web-component-framework-renderer-sdk'
-import { EventLog, type LogEntry } from '../state/event-log.ts'
-import { getBaseImports } from '../importmap-hook.ts'
-import {
-  getOverrides,
-  setOverrides,
-  getUiState,
-  setUiState,
-  resetAll,
-  type ImportmapOverrides,
-  type UiState,
-} from '../state/storage.ts'
-import { editProp, removeProp, addProp } from '../utils/props.ts'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
+import { EventLog } from '@/state/event-log.ts'
+import { getBaseImports } from '@/importmap-hook.ts'
+import { getOverrides, setOverrides, getUiState, setUiState, resetAll } from '@/state/storage.ts'
+import type { LogEntry } from '@/types/event-log.ts'
+import type { ImportmapOverrides, UiState } from '@/types/storage.ts'
+import { editProp, removeProp, addProp } from '@/utils/props.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
 import type { WcfHostElement } from 'web-component-framework-renderer-sdk'
 
 import './devtools-header.ts'
@@ -29,12 +23,9 @@ import './dom-tree-panel.ts'
 import './events-panel.ts'
 import './overrides-panel.ts'
 
+import type { MFEEventListener } from '@/types/devtools-panel.ts'
+
 const TAG = 'wcf-devtools'
-type MFEEventName = (typeof MFE_EVENTS)[keyof typeof MFE_EVENTS]
-interface MFEEventListener {
-  type: MFEEventName
-  listener: (event: Event) => void
-}
 
 class WcfDevtoolsPanel extends LitElement {
   static styles = [
@@ -186,7 +177,10 @@ class WcfDevtoolsPanel extends LitElement {
       if (type === 'MFE:UNMOUNTED' && detail?.id) {
         const existing = this.apps.find((a) => a.id === detail.id)
         if (existing) {
-          this.#ghostApps.set(existing.id, { ...existing, unmountedAt: existing.unmountedAt ?? performance.now() })
+          this.#ghostApps.set(existing.id, {
+            ...existing,
+            unmountedAt: existing.unmountedAt ?? performance.now(),
+          })
         }
       }
 
@@ -459,7 +453,9 @@ class WcfDevtoolsPanel extends LitElement {
               ></wcf-apps-panel>`
             : nothing}
           ${this.ui.panel === 'timeline'
-            ? html`<wcf-timeline-panel .apps=${this.apps.filter((a) => !a.unmountedAt)}></wcf-timeline-panel>`
+            ? html`<wcf-timeline-panel
+                .apps=${this.apps.filter((a) => !a.unmountedAt)}
+              ></wcf-timeline-panel>`
             : nothing}
           ${this.ui.panel === 'dom-tree'
             ? html`<wcf-dom-tree-panel .apps=${this.apps}></wcf-dom-tree-panel>`

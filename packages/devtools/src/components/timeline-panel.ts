@@ -1,8 +1,8 @@
 import { LitElement, html, css } from 'lit'
 import type { AppRegistryEntry } from 'web-component-framework-renderer-sdk'
-import { tokens } from '../styles/tokens.css.js'
-import { reset } from '../styles/reset.css.js'
-import { shortId, formatDuration } from '../utils/format.js'
+import { tokens } from '@/styles/tokens.css.js'
+import { reset } from '@/styles/reset.css.js'
+import { shortId, formatDuration } from '@/utils/format.js'
 
 class TimelinePanel extends LitElement {
   static styles = [

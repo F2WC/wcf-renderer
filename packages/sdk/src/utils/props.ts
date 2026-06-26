@@ -19,8 +19,7 @@ export function getComponentProps(element: HTMLElement): ComponentProps | undefi
         .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
       try {
         const value = JSON.parse(attr.value) as object
-        if(typeof value === 'object' && !Array.isArray(value))
-          props[key] = value
+        if (typeof value === 'object' && !Array.isArray(value)) props[key] = value
       } catch {
         props[key] = attr.value
       }

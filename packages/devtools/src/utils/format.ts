@@ -1,5 +1,5 @@
 import { html, nothing, type TemplateResult } from 'lit'
-import type { LogEntry } from '../state/event-log.ts'
+import type { LogEntry } from '@/types/event-log.ts'
 
 export function shortId(id: string): string {
   return id.slice(0, 8)

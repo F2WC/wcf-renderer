@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit'
 import { AppRegistryEntry, WcfHostElement } from 'web-component-framework-renderer-sdk'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
 import './instance-card.ts'
 
 class SpecifierRow extends LitElement {

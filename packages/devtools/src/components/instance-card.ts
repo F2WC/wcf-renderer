@@ -1,10 +1,10 @@
 import { LitElement, html, css, type PropertyValues } from 'lit'
 import { AppRegistryEntry, WcfHostElement } from 'web-component-framework-renderer-sdk'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
-import { formatWallTime, formatDuration, shortId } from '../utils/format.ts'
-import { highlightElement, clearHighlight } from '../utils/dom.ts'
-import { readPropsFromElement } from '../utils/props.ts'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
+import { formatWallTime, formatDuration, shortId } from '@/utils/format.ts'
+import { highlightElement, clearHighlight } from '@/utils/dom.ts'
+import { readPropsFromElement } from '@/utils/props.ts'
 import './props-editor.ts'
 
 class InstanceCard extends LitElement {
@@ -276,10 +276,6 @@ class InstanceCard extends LitElement {
 
   #copyId = async () => {
     if (!this.instance?.id) return
-    if (!navigator.clipboard?.writeText) {
-      console.warn('Clipboard API unavailable; unable to copy instance id')
-      return
-    }
 
     try {
       await navigator.clipboard.writeText(this.instance.id)

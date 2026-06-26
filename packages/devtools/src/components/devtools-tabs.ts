@@ -1,8 +1,7 @@
 import { LitElement, css, html } from 'lit'
-import { tokens } from '../styles/tokens.css.ts'
-import { reset } from '../styles/reset.css.ts'
-
-type Panel = 'apps' | 'timeline' | 'dom-tree' | 'events' | 'overrides'
+import { tokens } from '@/styles/tokens.css.ts'
+import { reset } from '@/styles/reset.css.ts'
+import type { Panel } from '@/types/devtools-tabs.ts'
 
 const TABS: { id: Panel; label: string }[] = [
   { id: 'apps', label: 'Apps' },
